@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebContextManager">
+    <option name="state">
+      <map>
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/index.jsp" value="file://$PROJECT_DIR$/src/main/webapp" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/view-admin/admin-order/update-order.html" value="file://$PROJECT_DIR$/src/main/webapp/view-admin/admin-order" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/view-admin/admin.html" value="file://$PROJECT_DIR$/src/main/webapp/view-admin" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/view/view-account/profile.jsp" value="file://$PROJECT_DIR$/src/main/webapp/view/view-account" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/view/view-index/header.jsp" value="file://$PROJECT_DIR$/src/main/webapp/view/view-index" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/view/view-index/main.jsp" value="file://$PROJECT_DIR$/src/main/webapp/view/view-index" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/view/view-login/signin.jsp" value="file://$PROJECT_DIR$/src/main/webapp/view/view-login" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/view/view-order/cart.jsp" value="file://$PROJECT_DIR$/src/main/webapp/view/view-order" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/view/view-product/phantrang.jsp" value="file://$PROJECT_DIR$/src/main/webapp/view/view-product" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/view/view-product/store.jsp" value="file://$PROJECT_DIR$/src/main/webapp/view/view-product" />
+      </map>
+    </option>
+  </component>
+</project>
