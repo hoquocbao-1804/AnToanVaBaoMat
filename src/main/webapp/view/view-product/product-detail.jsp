@@ -106,7 +106,6 @@
               <input type="hidden" name="idProduct" value="${product.idProduct}" />
               <button type="submit" class="btn btn-primary">
                 <span class="text">Mua sản phẩm</span>
-                <i class="fas fa-shopping-cart"></i>
               </button>
             </form>
 
