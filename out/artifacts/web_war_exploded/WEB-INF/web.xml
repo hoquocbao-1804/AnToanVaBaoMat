@@ -268,8 +268,6 @@
   <!--                       the expression? [true]                         -->
 
     <servlet>
-        <servlet-name>jsp</servlet-name>
-        <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
         <init-param>
             <param-name>fork</param-name>
             <param-value>false</param-value>
@@ -4749,4 +4747,8 @@
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
+    <servlet-mapping>
+        <servlet-name>adminServlet</servlet-name>
+        <url-pattern>/admin</url-pattern>
+    </servlet-mapping>
 </web-app>

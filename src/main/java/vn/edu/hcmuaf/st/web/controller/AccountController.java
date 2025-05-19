@@ -5,18 +5,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
-
 import vn.edu.hcmuaf.st.web.entity.Address;
-import vn.edu.hcmuaf.st.web.entity.GoogleAccount;
 import vn.edu.hcmuaf.st.web.entity.User;
 import vn.edu.hcmuaf.st.web.service.AccountService;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-
 import java.text.SimpleDateFormat;
 
-@WebServlet(urlPatterns = {"/sign", "/register", "/forgot-password", "/enter-otp", "/login", "/reset-password", "/logout", "/profile"})
+@WebServlet(urlPatterns = {"/sign", "/register", "/forgot-password", "/enter-otp", "/login", "/reset-password", "/logout", "/profile", "/admin"})
 public class AccountController extends HttpServlet {
     private final AccountService accountService = new AccountService();
 
@@ -38,9 +35,6 @@ public class AccountController extends HttpServlet {
             case "/sign":
                 request.getRequestDispatcher("/view/view-account/signin.jsp").forward(request, response);
                 break;
-            case "/login":
-                handleGoogleLogin(request, response);
-                break;
             case "/reset-password":
                 request.getRequestDispatcher("/view/view-account/reset-password.jsp").forward(request, response);
                 break;
@@ -48,7 +42,10 @@ public class AccountController extends HttpServlet {
                 handleLogout(request, response);
                 break;
             case "/profile":
-                viewProfile(request, response);  // Hiển thị thông tin người dùng
+                viewProfile(request, response);
+                break;
+            case "/admin":
+                handleAdminDashboard(request, response); // New Admin endpoint
                 break;
         }
     }
@@ -80,13 +77,15 @@ public class AccountController extends HttpServlet {
             case "/profile":
                 handleProfileUpdate(request, response);
                 break;
+            case "/admin":
+                handleAdminActions(request, response); // Handle Admin actions (e.g., update roles)
+                break;
             default:
                 response.sendRedirect("/sign");
                 break;
         }
     }
 
-    // UTF8
     private void commonSettings(HttpServletRequest request, HttpServletResponse response) {
         try {
             request.setCharacterEncoding("UTF-8");
@@ -97,10 +96,8 @@ public class AccountController extends HttpServlet {
         response.setContentType("text/html; charset=UTF-8");
     }
 
-    // Đăng Nhập
     private void handleLogin(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
@@ -112,34 +109,26 @@ public class AccountController extends HttpServlet {
 
         if (accountService.login(username, password)) {
             HttpSession session = request.getSession();
-
-            // Lấy toàn bộ thông tin user từ database
             User user = accountService.getUserByUsername(username);
 
             if (user != null) {
                 session.setAttribute("username", user.getUsername());
                 session.setAttribute("fullname", user.getFullName());
                 session.setAttribute("email", user.getEmail());
-                session.setAttribute("password", user.getPassword());
-                session.setAttribute("phoneNumber", user.getPhoneNumber());// Chú ý: Không nên lưu mật khẩu vào session!
+                session.setAttribute("phoneNumber", user.getPhoneNumber());
                 session.setAttribute("birthDate", user.getBirthDate());
                 session.setAttribute("image", user.getImage());
+                session.setAttribute("idRole", user.getIdRole()); // Store role in session
+                session.setAttribute("user", user);
+                System.out.println(">> Logged in user ID = " + user.getIdUser() + ", Role = " + user.getIdRole());
+                response.sendRedirect(request.getContextPath() + "/home");
             }
-
-            session.setAttribute("user", user);
-
-            //check
-            System.out.println(">> Logged in user ID = " + user.getIdUser());
-
-            response.sendRedirect(request.getContextPath() + "/home");
         } else {
             request.setAttribute("error", "Tài khoản hoặc mật khẩu không đúng!");
             request.getRequestDispatcher("/view/view-account/signin.jsp").forward(request, response);
         }
     }
 
-
-    // Đăng Ký
     private void handleRegister(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String username = request.getParameter("username");
@@ -173,7 +162,6 @@ public class AccountController extends HttpServlet {
         }
     }
 
-    // Quên MK
     private void handleForgotPassword(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String userEmail = request.getParameter("email");
@@ -191,14 +179,12 @@ public class AccountController extends HttpServlet {
             mySession.setAttribute("otp", otpvalue);
             mySession.setAttribute("email", userEmail);
             request.getRequestDispatcher("/view/view-account/enter-otp.jsp").forward(request, response);
-
         } catch (Exception e) {
             e.printStackTrace();
             throw new ServletException("Lỗi khi gửi OTP qua email", e);
         }
     }
 
-    // Xử lý xác thực OTP
     public void handleOtpValidation(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int value = Integer.parseInt(request.getParameter("otp"));
         HttpSession session = request.getSession();
@@ -216,7 +202,6 @@ public class AccountController extends HttpServlet {
         dispatcher.forward(request, response);
     }
 
-    // Tạo Mk mới
     private void handleResetPassword(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
@@ -225,18 +210,14 @@ public class AccountController extends HttpServlet {
         String email = (String) session.getAttribute("email");
         RequestDispatcher dispatcher;
 
-        // Kiểm tra các trường mật khẩu và xác nhận mật khẩu
         if (password == null || confPassword == null || email == null || !password.equals(confPassword)) {
-            request.setAttribute("status", "invalidInput");  // Hiển thị lỗi nếu không hợp lệ
+            request.setAttribute("status", "invalidInput");
             dispatcher = request.getRequestDispatcher("/view/view-account/reset-password.jsp");
             dispatcher.forward(request, response);
             return;
         }
 
-        // Cập nhật mật khẩu vào cơ sở dữ liệu
         boolean isUpdated = accountService.updatePassword(email, password);
-
-        // Nếu cập nhật thành công
         if (isUpdated) {
             request.setAttribute("status", "resetSuccess");
             dispatcher = request.getRequestDispatcher("/view/view-account/signin.jsp");
@@ -247,83 +228,14 @@ public class AccountController extends HttpServlet {
         dispatcher.forward(request, response);
     }
 
-    // Đăng nhập Bằng gg
-    private void handleGoogleLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        try {
-            HttpSession session = request.getSession();
-            GoogleAccount googleAccount = (GoogleAccount) session.getAttribute("googleAccount");
 
-            // Nếu đã đăng nhập, chuyển hướng về trang home thay vì đăng nhập lại
-            if (googleAccount != null) {
-                response.sendRedirect(request.getContextPath() + "/home");
-                return;
-            }
-
-            // Lấy mã code từ request
-            String code = request.getParameter("code");
-            if (code == null || code.isEmpty()) {
-                response.sendRedirect(request.getContextPath() + "/view/view-account/signin.jsp?error=missing_code");
-                return;
-            }
-
-            // Gọi service để xử lý đăng nhập Google
-            //googleAccount = accountService.handleGoogleLogin(code);
-
-            // Lưu vào session
-            //session.setAttribute("googleAccount", googleAccount);
-
-            // Chuyển hướng đến trang home sau khi đăng nhập thành công
-            //response.sendRedirect(request.getContextPath() + "/home");
-
-
-            //-----------------BINH-----------------------
-            googleAccount = accountService.handleGoogleLogin(code);
-
-            // Kiểm tra xem user đã tồn tại trong DB chưa
-            User user = accountService.getUserByEmail(googleAccount.getEmail());
-            if (user == null) {
-                // Nếu chưa có → tạo mới User trong DB
-                user = new User();
-                user.setIdUser(Integer.parseInt(googleAccount.getId()));
-                user.setUsername(googleAccount.getUsername());
-                user.setEmail(googleAccount.getEmail());
-                user.setFullName(googleAccount.getFullName());
-                user.setPhoneNumber(googleAccount.getPhoneNumber());
-                user.setAuthProvider("google");
-                user.setSocialId(googleAccount.getId());
-                user.setImage(googleAccount.getImage());
-                user.setIdRole(googleAccount.getIdRole());
-
-                // Tạo user trong DB (bạn cần viết hàm createUser nếu chưa có)
-                user = accountService.insertOrUpdateUserAndReturn(googleAccount);
-            }
-
-            // Gán user vào session như bình thường
-            session.setAttribute("user", user);
-            session.setAttribute("username", user.getUsername());
-            session.setAttribute("fullname", user.getFullName());
-            session.setAttribute("email", user.getEmail());
-            session.setAttribute("password", user.getPassword());
-            session.setAttribute("phoneNumber", user.getPhoneNumber());// Chú ý: Không nên lưu mật khẩu vào session!
-            session.setAttribute("birthDate", user.getBirthDate());
-            session.setAttribute("image", user.getImage());
-            response.sendRedirect(request.getContextPath() + "/home");
-
-        } catch (Exception e) {
-            response.sendRedirect(request.getContextPath() + "/view/view-account/signin.jsp?error=true");
-        }
-    }
-
-    // Đăng Xuất Bằng Tk
     private void handleLogout(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session != null) {
-            session.invalidate();  // Xóa session khi đăng xuất
+            session.invalidate();
         }
-        // Đảm bảo response chưa bị committed trước khi gửi redirect
-        response.setStatus(HttpServletResponse.SC_OK);  // Đảm bảo không có lỗi status
-        // Sau khi logout, chuyển hướng về trang đăng nhập
+        response.setStatus(HttpServletResponse.SC_OK);
         response.sendRedirect(request.getContextPath() + "/view/view-account/signin.jsp");
     }
 
@@ -335,7 +247,6 @@ public class AccountController extends HttpServlet {
             response.sendRedirect("/sign");
             return;
         }
-        // Lấy thông tin từ form
         String fullName = request.getParameter("fullName");
         String phoneNumber = request.getParameter("phoneNumber");
         String email = request.getParameter("email");
@@ -353,13 +264,11 @@ public class AccountController extends HttpServlet {
                 e.printStackTrace();
             }
         }
-        // Kiểm tra dữ liệu bắt buộc
         if (birthDate == null || address == null || address.trim().isEmpty()) {
             request.setAttribute("error", "Ngày sinh hoặc địa chỉ không hợp lệ.");
             request.getRequestDispatcher("/view/view-account/profile.jsp").forward(request, response);
             return;
         }
-        // Cập nhật thông tin người dùng trong cơ sở dữ liệu
         AccountService service = new AccountService();
         boolean success = service.updateUserInfo(
                 currentUser.getIdUser(),
@@ -372,13 +281,11 @@ public class AccountController extends HttpServlet {
                 province,
                 birthDate
         );
-        // Nếu cập nhật thành công, cập nhật lại thông tin trong session
         if (success) {
             currentUser.setFullName(fullName);
             currentUser.setPhoneNumber(phoneNumber);
             currentUser.setEmail(email);
             currentUser.setBirthDate(String.valueOf(birthDate));
-            // Cập nhật thông tin địa chỉ vào đối tượng Address nếu có
             if (currentUser.getAddress() == null) {
                 currentUser.setAddress(new Address());
             }
@@ -388,7 +295,8 @@ public class AccountController extends HttpServlet {
             addr.setDistrict(district);
             addr.setProvince(province);
             session.setAttribute("user", currentUser);
-            request.setAttribute("user", currentUser); // để JSP đọc lại dữ liệu
+            session.setAttribute("idRole", currentUser.getIdRole()); // Update role in session
+            request.setAttribute("user", currentUser);
             request.setAttribute("message", "Cập nhật thông tin thành công!");
             request.getRequestDispatcher("/view/view-account/profile.jsp").forward(request, response);
         } else {
@@ -396,6 +304,7 @@ public class AccountController extends HttpServlet {
             request.getRequestDispatcher("/view/view-account/profile.jsp").forward(request, response);
         }
     }
+
     private void viewProfile(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
@@ -406,6 +315,7 @@ public class AccountController extends HttpServlet {
         }
         User user = accountService.getUserByUsernameAndAddress(username);
         if (user != null) {
+            session.setAttribute("idRole", user.getIdRole()); // Ensure role is in session
             request.setAttribute("user", user);
             request.getRequestDispatcher("/view/view-account/profile.jsp").forward(request, response);
         } else {
@@ -414,5 +324,40 @@ public class AccountController extends HttpServlet {
         }
     }
 
+    private void handleAdminDashboard(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null || !currentUser.isAdmin()) {
+            request.setAttribute("error", "Bạn không có quyền truy cập trang này.");
+            request.getRequestDispatcher("/view/view-account/signin.jsp").forward(request, response);
+            return;
+        }
+        // Load admin dashboard (e.g., list of users)
+        // For now, forward to a placeholder JSP
+        request.getRequestDispatcher("/view/view-account/admin.jsp").forward(request, response);
+    }
 
+    private void handleAdminActions(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        User currentUser = (User) session.getAttribute("user");
+        if (currentUser == null || !currentUser.isAdmin()) {
+            request.setAttribute("error", "Bạn không có quyền thực hiện hành động này.");
+            request.getRequestDispatcher("/view/view-account/signin.jsp").forward(request, response);
+            return;
+        }
+        String action = request.getParameter("action");
+        if ("updateRole".equals(action)) {
+            int userId = Integer.parseInt(request.getParameter("userId"));
+            int newRole = Integer.parseInt(request.getParameter("newRole"));
+            boolean success = accountService.updateUserRole(userId, newRole);
+            if (success) {
+                request.setAttribute("message", "Cập nhật vai trò thành công.");
+            } else {
+                request.setAttribute("error", "Cập nhật vai trò thất bại.");
+            }
+        }
+        request.getRequestDispatcher("/view/view-account/admin.jsp").forward(request, response);
+    }
 }
