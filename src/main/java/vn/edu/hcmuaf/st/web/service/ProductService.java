@@ -10,7 +10,7 @@ public class ProductService {
 
     private final ProductDao productDao;
 
-    public ProductService() {
+    public ProductService() {      
         this.productDao = new ProductDao();
     }
 
