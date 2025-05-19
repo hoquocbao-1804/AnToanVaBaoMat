@@ -15,6 +15,8 @@ public class Cart implements Serializable {
 
     public Cart() {
         this.cartItems = new HashMap<>();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     public Cart(int idUser) {
@@ -46,8 +48,13 @@ public class Cart implements Serializable {
             throw new IllegalArgumentException("Sản phẩm không hợp lệ.");
         }
 
-        ProductVariant variant = product.getProductVariants().getFirst();
-        if (variant == null) {
+        ProductVariant variant = null;
+        List<ProductVariant> variants = product.getProductVariants();
+
+        if (variants != null && !variants.isEmpty()) {
+            variant = variants.get(0);  // Lấy phần tử đầu tiên trong danh sách
+        } else {
+            // Xử lý khi không có biến thể nào, ví dụ:
             throw new IllegalArgumentException("Sản phẩm không có biến thể hợp lệ.");
         }
 
@@ -67,7 +74,12 @@ public class Cart implements Serializable {
                     product.getFinalPrice(),  // Giá từ product
                     0, // Giá giảm chưa có
                     1,
-                    product.getProductImages().isEmpty() ? "" : product.getProductImages().get(0).getImageUrl()
+                    product.getProductImages().stream()
+                            .filter(Objects::nonNull)
+                            .map(ProductImage::getImageUrl)
+                            .findFirst()
+                            .orElse("")
+
             );
             // Gán danh sách màu và size có sẵn cho CartItem
             item.setAvailableColors(availableColors);
@@ -88,27 +100,43 @@ public class Cart implements Serializable {
         if (item != null && quantity > 0) {
             item.setQuantity(quantity);
             updateTotalPrice();
+            this.updatedAt = LocalDateTime.now();
         }
     }
 
     public void updateTotalPrice() {
         this.totalPrice = cartItems.values().stream()
-                .mapToDouble(item -> (item.getDiscountPrice() > 0 ? item.getPrice() * item.getQuantity()*item.getDiscountPrice() : item.getPrice()) * item.getQuantity())
+                .mapToDouble(item -> {
+                    double price = item.getDiscountPrice() > 0 ? item.getDiscountPrice() : item.getPrice();
+                    return price * item.getQuantity();
+                })
                 .sum();
     }
 
     public void removeItem(int idVariant) {
-        if(cartItems.containsKey(idVariant)) {
+        if (cartItems.containsKey(idVariant)) {
             cartItems.remove(idVariant);
             updateTotalPrice();
             this.updatedAt = LocalDateTime.now();
         }
     }
 
-    //tong tien cuoi cung
+    public void clearCart() {
+        cartItems.clear();
+        totalPrice = 0;
+        discountAmount = 0;
+        updatedAt = LocalDateTime.now();
+    }
+
+    public int getTotalQuantity() {
+        return cartItems.values().stream().mapToInt(CartItem::getQuantity).sum();
+    }
+
     public double getFinalTotal() {
         return totalPrice - discountAmount;
     }
+
+    // Getter & Setter
 
     public int getIdUser() {
         return idUser;
@@ -123,7 +151,7 @@ public class Cart implements Serializable {
     }
 
     public void setCartItems(Map<Integer, CartItem> cartItems) {
-        this.cartItems = cartItems;
+        this.cartItems = (cartItems != null) ? cartItems : new HashMap<>();
     }
 
     public double getTotalPrice() {
@@ -164,6 +192,7 @@ public class Cart implements Serializable {
                 "idUser=" + idUser +
                 ", cartItems=" + cartItems +
                 ", totalPrice=" + totalPrice +
+                ", discountAmount=" + discountAmount +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
