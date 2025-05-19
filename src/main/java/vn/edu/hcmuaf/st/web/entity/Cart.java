@@ -46,7 +46,7 @@ public class Cart implements Serializable {
             throw new IllegalArgumentException("Sản phẩm không hợp lệ.");
         }
 
-        ProductVariant variant = product.getProductVariants().getFirst();
+        ProductVariant variant = product.getProductVariants().get(1);
         if (variant == null) {
             throw new IllegalArgumentException("Sản phẩm không có biến thể hợp lệ.");
         }

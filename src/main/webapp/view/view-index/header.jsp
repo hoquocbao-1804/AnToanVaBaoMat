@@ -121,12 +121,9 @@
                             <!-- Nội dung Navbar -->
                             <div class=" " id="navbarNav">
                                 <ul class="navbar-nav mx-auto">
-                                    <li class="nav-item dropdown">
-                                        <a
-                                                class="nav-link text-dark"
-                                                href="${pageContext.request.contextPath}/home"
-                                                role="button" data-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="false" style="font-size: 20px;"> Trang Chủ
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" href="${pageContext.request.contextPath}/home" style="font-size: 20px;">
+                                            Trang Chủ
                                         </a>
                                     </li>
                                     <!-- Bé Trai -->
