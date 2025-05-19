@@ -31,55 +31,7 @@
 </section>
 <!-- ========================= SECTION MAIN END// ========================= -->
 
-<!-- ========================= SAN PHAM HOT MUA NHIEU  ========================= -->
-<section class="section-name padding-y-sm my-4">
-    <div class="container">
-        <header class="section-heading">
-            <a href="${pageContext.request.contextPath}/product"
-               class="btn btn-outline-primary float-right">Xem tất cả</a>
-            <h3 class="section-title">Các Sản Phẩm Hot</h3>
-        </header>
 
-        <div class="best-seller" id="best-seller">
-            <div class="row">
-                <c:forEach var="product" items="${products}" begin="1" end="8">
-                    <div class="col-md-3 gap-3 mb-5">
-                        <div class="product-card">
-                            <div class="badge-custome">Hot</div>
-
-                            <c:set var="imageUrl"
-                                   value="${not empty product.productImages ? product.productImages[0].imageUrl : 'default.jpg'}"/>
-
-                            <div class="product-tumb">
-                                <img src="${imageUrl}" alt="${product.title}">
-                            </div>
-                            <div class="product-details">
-                                <span class="product-catagory">${product.category.name}</span>
-                                <h4>
-                                    <a href="${pageContext.request.contextPath}/detail?pid=${product.idProduct}">${product.title}</a>
-                                </h4>
-                                <div class="product-bottom-details">
-                                    <div class="product-price">
-                                        <small class="ori-price"><fmt:formatNumber value="${product.price}" pattern="#,##0 đ"/></small>
-                                        <p class="dis-price"><fmt:formatNumber value="200000" pattern="#,##0 đ"/></p>
-                                    </div>
-                                    <div class="product-links">
-                                        <a href="#"><i class="fa-solid fa-eye"></i></a>
-                                        <a href="#"><i class="fa fa-shopping-cart"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </c:forEach>
-            </div>
-        </div>
-
-        <div class="load-more">
-            <button>Xem thêm</button>
-        </div>
-    </div>
-</section>
 
 <!-- ========================= SAN PHAM GIAM GIA  ========================= -->
 <section class="section-name padding-y-sm my-4">
