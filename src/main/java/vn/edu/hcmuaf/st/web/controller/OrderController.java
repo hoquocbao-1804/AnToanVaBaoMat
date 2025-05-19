@@ -42,7 +42,7 @@ public class OrderController extends HttpServlet {
 //        req.setAttribute("phone2", googleAccount.getPhoneNumber());
 
         // Gán thông tin người dùng để hiển thị sẵn trong form
-        req.setAttribute("fullName", user.getFullName());
+        req.setAttribute("fullName", user.getFullName());   
         req.setAttribute("email", user.getEmail());
         req.setAttribute("phone", user.getPhoneNumber());
 
