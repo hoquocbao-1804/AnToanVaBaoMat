@@ -1,17 +1,18 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: hdanh
-  Date: 24/02/2025
-  Time: 8:48 SA
-  To change this template use File | Settings | File Templates.
---%>
 
-<%@ include file="/view/view-index/header.jsp" %>
-<html>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<!DOCTYPE HTML>
+<html lang="en">
 <head>
-    <title>Chi Tiết Sản Phẩm </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
+<%@ include file="/view/view-index/header.jsp" %>
 <section class="section-content padding-y bg">
     <div class="container">
 
@@ -171,6 +172,6 @@
 
     </div> <!-- container .//  -->
 </section>
+<%@ include file="/view/view-index/footer.jsp" %>
 </body>
 </html>
-<%@ include file="/view/view-index/footer.jsp" %>
