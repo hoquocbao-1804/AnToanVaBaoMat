@@ -1,6 +1,17 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-
+<%@ page import="vn.edu.hcmuaf.st.web.entity.Cart" %>
+<%@ page import="java.util.stream.*" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<%
+    Cart cart = (Cart) session.getAttribute("cart");
+    int totalQuantity = 0;
+    if (cart != null) {
+        totalQuantity = cart.getCartItems().values().stream()
+                .mapToInt(item -> item.getQuantity())
+                .sum();
+    }
+%>
 
 <head>
     <meta charset="utf-8">
@@ -85,7 +96,7 @@
                     <a href="${pageContext.request.contextPath}/view/view-order/cart.jsp"
                        class="widget-header pl-3 ml-3">
                         <div class="icon icon-sm rounded-circle border"><i class="fa fa-shopping-cart"></i></div>
-                        <span class="badge badge-pill badge-danger notify">0</span>
+                        <span class="badge badge-pill badge-danger notify"><%= totalQuantity %></span>
                     </a>
                 </div> <!-- widgets-wrap.// -->
             </div> <!-- col.// -->

@@ -83,17 +83,22 @@ public class Cart implements Serializable {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void addQuantity(int idVariant, int quantity) {
+    public void addQuantity(int idVariant, int quantityToAdd) {
         CartItem item = cartItems.get(idVariant);
-        if (item != null && quantity > 0) {
-            item.setQuantity(quantity);
+        if (item != null && quantityToAdd > 0) {
+            item.setQuantity(item.getQuantity() + quantityToAdd);
             updateTotalPrice();
+            this.updatedAt = LocalDateTime.now();
         }
     }
 
+
     public void updateTotalPrice() {
         this.totalPrice = cartItems.values().stream()
-                .mapToDouble(item -> (item.getDiscountPrice() > 0 ? item.getPrice() * item.getQuantity()*item.getDiscountPrice() : item.getPrice()) * item.getQuantity())
+                .mapToDouble(item -> {
+                    double pricePerItem = item.getDiscountPrice() > 0 ? item.getDiscountPrice() : item.getPrice();
+                    return pricePerItem * item.getQuantity();
+                })
                 .sum();
     }
 
