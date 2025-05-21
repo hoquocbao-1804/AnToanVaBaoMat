@@ -92,8 +92,23 @@
               </div>
             </div> <!-- row.// -->
             <hr>
-            <a href="./product-detail.html" class="btn  btn-primary"> <span class="text">Thêm vào giỏ</span> <i class="fas fa-shopping-cart"></i>  </a>
-            <a href="./product-detail.html" class="btn  btn-primary"> <span class="text">Mua sản phẩm</span> <i class="fas fa-shopping-cart"></i>  </a>
+            <form action="${pageContext.request.contextPath}/cart" method="post" class="d-inline-block me-2">
+              <input type="hidden" name="action" value="add" />
+              <input type="hidden" name="idProduct" value="${product.idProduct}" />
+              <button type="submit" class="btn btn-primary">
+                <span class="text">Thêm vào giỏ</span>
+                <i class="fas fa-shopping-cart"></i>
+              </button>
+            </form>
+
+            <form action="${pageContext.request.contextPath}/cart" method="post" class="d-inline-block">
+              <input type="hidden" name="action" value="add" />
+              <input type="hidden" name="idProduct" value="${product.idProduct}" />
+              <button type="submit" class="btn btn-primary">
+                <span class="text">Mua sản phẩm</span>
+              </button>
+            </form>
+
           </article> <!-- product-info-aside .// -->
         </main> <!-- col.// -->
       </div> <!-- row.// -->
