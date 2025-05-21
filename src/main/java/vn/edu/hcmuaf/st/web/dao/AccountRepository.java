@@ -5,10 +5,15 @@ import org.jdbi.v3.core.statement.Query;
 import org.mindrot.jbcrypt.BCrypt;
 import vn.edu.hcmuaf.st.web.dao.db.JDBIConnect;
 import vn.edu.hcmuaf.st.web.entity.Address;
+import vn.edu.hcmuaf.st.web.entity.Order;
+import vn.edu.hcmuaf.st.web.entity.Role;
 import vn.edu.hcmuaf.st.web.entity.User;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class AccountRepository {
     private final Jdbi jdbi;
@@ -30,7 +35,7 @@ public class AccountRepository {
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         return jdbi.withHandle(handle -> {
             int rowsInserted = handle.createUpdate(query)
-                    .bind(0, 2) // Default to User role (idRole = 2)
+                    .bind(0, Role.RoleName.ROLE_USER.ordinal() + 1)
                     .bind(1, username)
                     .bind(2, password)
                     .bind(3, fullname)
@@ -47,7 +52,7 @@ public class AccountRepository {
         String query = "SELECT password FROM users WHERE username = ?";
         return jdbi.withHandle(handle -> {
             Query q = handle.createQuery(query).bind(0, username);
-            String hashedPassword = q.mapTo(String.class).findOnly();
+            String hashedPassword = q.mapTo(String.class).findFirst().orElse(null);
             if (hashedPassword == null) {
                 return false;
             }
@@ -72,7 +77,7 @@ public class AccountRepository {
             String fullName = handle.createQuery(query)
                     .bind(0, username)
                     .mapTo(String.class)
-                    .findOnly();
+                    .findFirst().orElse(null);
             return fullName;
         });
     }
@@ -86,7 +91,7 @@ public class AccountRepository {
                         a.idAddress AS a_idAddress, a.address AS a_address, a.ward AS a_ward, 
                         a.district AS a_district, a.province AS a_province, a.isDefault AS a_isDefault
                     FROM users u
-                    JOIN address a ON u.idUser = a.idUser
+                    LEFT JOIN address a ON u.idUser = a.idUser
                     WHERE u.username = ?
                 """;
         return jdbi.withHandle(handle ->
@@ -100,24 +105,26 @@ public class AccountRepository {
                             user.setUsername(rs.getString("u_username"));
                             user.setEmail(rs.getString("u_email"));
                             user.setPhoneNumber(rs.getString("u_phoneNumber"));
-                            user.setIdRole(rs.getInt("u_idRole")); // Set role
+                            user.setRole(Role.RoleName.values()[rs.getInt("u_idRole") - 1]);
                             Date birthDate = rs.getDate("u_birthDate");
                             if (birthDate != null) {
                                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                                 user.setBirthDate(sdf.format(birthDate));
                             }
-                            Address address = new Address(
-                                    rs.getInt("a_idAddress"),
-                                    user,
-                                    rs.getString("a_address"),
-                                    rs.getString("a_ward"),
-                                    rs.getString("a_district"),
-                                    rs.getString("a_province"),
-                                    rs.getBoolean("a_isDefault")
-                            );
-                            user.setAddress(address);
+                            if (rs.getInt("a_idAddress") != 0) {
+                                Address address = new Address(
+                                        rs.getInt("a_idAddress"),
+                                        user,
+                                        rs.getString("a_address"),
+                                        rs.getString("a_ward"),
+                                        rs.getString("a_district"),
+                                        rs.getString("a_province"),
+                                        rs.getBoolean("a_isDefault")
+                                );
+                                user.setAddress(address);
+                            }
                             return user;
-                        }).findOne().orElse(null)
+                        }).findFirst().orElse(null)
         );
     }
 
@@ -134,42 +141,11 @@ public class AccountRepository {
                             user.setUsername(rs.getString("username"));
                             user.setEmail(rs.getString("email"));
                             user.setPhoneNumber(rs.getString("phoneNumber"));
-                            user.setIdRole(rs.getInt("idRole")); // Set role
+                            user.setRole(Role.RoleName.values()[rs.getInt("idRole") - 1]);
                             return user;
-                        }).findOne().orElse(null)
+                        }).findFirst().orElse(null)
         );
     }
-
-//    public User insertOrUpdateUser(GoogleAccount googleAccount) {
-//        String query = """
-//                    INSERT INTO users (username, password, fullName, email, idRole, image, socialId, phoneNumber)
-//                    VALUES (:username, :password, :fullName, :email, :idRole, :image, :socialId, :phoneNumber)
-//                    ON DUPLICATE KEY UPDATE
-//                        fullName = :fullName,
-//                        image = :image,
-//                        username = :username,
-//                        password = :password,
-//                        phoneNumber = :phoneNumber
-//                """;
-//        try {
-//            jdbi.useHandle(handle ->
-//                    handle.createUpdate(query)
-//                            .bind("username", googleAccount.getUsername())
-//                            .bind("password", googleAccount.getPassword())
-//                            .bind("fullName", googleAccount.getFullName())
-//                            .bind("email", googleAccount.getEmail())
-//                            .bind("idRole", googleAccount.getIdRole() != 0 ? googleAccount.getIdRole() : 2) // Default to User role
-//                            .bind("image", googleAccount.getImage())
-//                            .bind("socialId", googleAccount.getId())
-//                            .bind("phoneNumber", googleAccount.getPhoneNumber())
-//                            .execute()
-//            );
-//            return new User(googleAccount.getFullName(), googleAccount.getPassword(), googleAccount.getUsername(), googleAccount.getEmail());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
 
     public boolean updateUserInfo(int idUser, String fullName, String phoneNumber, String email,
                                   String address, String ward, String district, String province,
@@ -214,13 +190,12 @@ public class AccountRepository {
         }
     }
 
-    // New method to update user role
-    public boolean updateUserRole(int idUser, int idRole) {
+    public boolean updateUserRole(int idUser, Role.RoleName role) {
         String sql = "UPDATE users SET idRole = :idRole WHERE idUser = :idUser";
         try {
             return jdbi.withHandle(handle ->
                     handle.createUpdate(sql)
-                            .bind("idRole", idRole)
+                            .bind("idRole", role.ordinal() + 1)
                             .bind("idUser", idUser)
                             .execute() > 0
             );
@@ -243,11 +218,57 @@ public class AccountRepository {
                             user.setUsername(rs.getString("username"));
                             user.setEmail(rs.getString("email"));
                             user.setPhoneNumber(rs.getString("phoneNumber"));
-                            user.setIdRole(rs.getInt("idRole")); // Set role
+                            user.setRole(Role.RoleName.values()[rs.getInt("idRole") - 1]);
                             return user;
                         })
-                        .findOne()
+                        .findFirst()
                         .orElse(null)
+        );
+    }
+
+
+
+    public List<User> getRecentUsers() {
+        String query = """
+            SELECT idUser, username, fullName, email, phoneNumber
+            FROM users
+            WHERE idRole = :userRole
+            ORDER BY idUser DESC
+            LIMIT 10
+        """;
+        return jdbi.withHandle(handle ->
+                handle.createQuery(query)
+                        .bind("userRole", Role.RoleName.ROLE_USER.ordinal() + 1)
+                        .map((rs, ctx) -> {
+                            User user = new User();
+                            user.setIdUser(rs.getInt("idUser"));
+                            user.setUsername(rs.getString("username"));
+                            user.setFullName(rs.getString("fullName"));
+                            user.setEmail(rs.getString("email"));
+                            user.setPhoneNumber(rs.getString("phoneNumber"));
+                            user.setRole(Role.RoleName.ROLE_USER);
+                            return user;
+                        })
+                        .list()
+        );
+    }
+
+    public Map<String, Double> getRevenueLastSixMonths() {
+        String query = """
+            SELECT DATE_FORMAT(startDate, '%Y-%m') AS month, SUM(total) AS revenue
+            FROM orders
+            WHERE startDate >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+            GROUP BY DATE_FORMAT(startDate, '%Y-%m')
+            ORDER BY month
+        """;
+        return jdbi.withHandle(handle ->
+                handle.createQuery(query)
+                        .mapToMap()
+                        .stream()
+                        .collect(Collectors.toMap(
+                                row -> (String) row.get("month"),
+                                row -> ((Number) row.get("revenue")).doubleValue()
+                        ))
         );
     }
 }

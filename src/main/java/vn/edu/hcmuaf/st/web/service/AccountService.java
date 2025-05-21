@@ -2,12 +2,20 @@ package vn.edu.hcmuaf.st.web.service;
 
 import org.mindrot.jbcrypt.BCrypt;
 import vn.edu.hcmuaf.st.web.dao.AccountRepository;
+import vn.edu.hcmuaf.st.web.entity.Order;
+import vn.edu.hcmuaf.st.web.entity.Role;
 import vn.edu.hcmuaf.st.web.entity.User;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class AccountService {
-    private final AccountRepository accountRepository = new AccountRepository();
+    private final AccountRepository accountRepository;
+
+    public AccountService() {
+        this.accountRepository = new AccountRepository();
+    }
 
     public boolean login(String username, String password) {
         return accountRepository.validateUser(username, password);
@@ -25,22 +33,8 @@ public class AccountService {
         return accountRepository.getUserByUsername(username);
     }
 
-    public User getUserByEmail(String email) {
-        return accountRepository.getUserByEmail(email);
-    }
-
     public User getUserByUsernameAndAddress(String username) {
         return accountRepository.getUserByUsernameAndAddress(username);
-    }
-
-    public int generateOTP() {
-        return new Random().nextInt(900000) + 100000; // 6-digit OTP
-    }
-
-    public void sendOTP(String email, int otp) throws Exception {
-        // Implement email sending logic (e.g., using JavaMail)
-        // For now, assume it works
-        System.out.println("Sending OTP " + otp + " to " + email);
     }
 
     public boolean updatePassword(String email, String password) {
@@ -48,17 +42,31 @@ public class AccountService {
         return accountRepository.updatePasswordByEmail(email, hashedPassword);
     }
 
-
     public boolean updateUserInfo(int idUser, String fullName, String phoneNumber, String email,
                                   String address, String ward, String district, String province,
-                                  java.sql.Date birthDate) {
+                                  java.util.Date birthDate) {
         return accountRepository.updateUserInfo(idUser, fullName, phoneNumber, email, address, ward, district, province, birthDate);
     }
 
-    public boolean updateUserRole(int userId, int newRole) {
-        if (newRole != 1 && newRole != 2) { // Validate role
-            return false;
-        }
-        return accountRepository.updateUserRole(userId, newRole);
+    public boolean updateUserRole(int userId, Role.RoleName role) {
+        return accountRepository.updateUserRole(userId, role);
+    }
+
+    public int generateOTP() {
+        return new Random().nextInt(900000) + 100000;
+    }
+
+    public void sendOTP(String email, int otp) {
+        System.out.println("Gửi OTP " + otp + " đến " + email);
+    }
+
+
+
+    public List<User> getRecentUsers() {
+        return accountRepository.getRecentUsers();
+    }
+
+    public Map<String, Double> getRevenueLastSixMonths() {
+        return accountRepository.getRevenueLastSixMonths();
     }
 }

@@ -11,12 +11,11 @@ public class User {
     private String phoneNumber;
     private String birthDate;
     private String image;
-    private int idRole; // Added role field
+    private Role.RoleName role;
     private String socialId;
     private String authProvider;
     private Address address;
 
-    // Constructors
     public User() {}
 
     public User(String fullName, String password, String username, String email) {
@@ -24,9 +23,9 @@ public class User {
         this.password = password;
         this.username = username;
         this.email = email;
+        this.role = Role.RoleName.ROLE_USER;
     }
 
-    // Getters and Setters
     public int getIdUser() { return idUser; }
     public void setIdUser(int idUser) { this.idUser = idUser; }
 
@@ -51,8 +50,8 @@ public class User {
     public String getImage() { return image; }
     public void setImage(String image) { this.image = image; }
 
-    public int getIdRole() { return idRole; }
-    public void setIdRole(int idRole) { this.idRole = idRole; }
+    public Role.RoleName getRole() { return role; }
+    public void setRole(Role.RoleName role) { this.role = role; }
 
     public String getSocialId() { return socialId; }
     public void setSocialId(String socialId) { this.socialId = socialId; }
@@ -63,13 +62,12 @@ public class User {
     public Address getAddress() { return address; }
     public void setAddress(Address address) { this.address = address; }
 
-    // Helper method to check role
     public boolean isAdmin() {
-        return idRole == 1; // Assuming idRole = 1 is Admin
+        return role == Role.RoleName.ROLE_ADMIN;
     }
 
     public boolean isUser() {
-        return idRole == 2; // Assuming idRole = 2 is User
+        return role == Role.RoleName.ROLE_USER;
     }
 
     @Override
@@ -81,7 +79,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", birthDate='" + birthDate + '\'' +
-                ", idRole=" + idRole +
+                ", role=" + role +
                 ", address=" + address +
                 '}';
     }

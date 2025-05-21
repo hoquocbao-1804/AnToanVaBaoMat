@@ -4,16 +4,19 @@ import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-
 import vn.edu.hcmuaf.st.web.entity.Address;
+import vn.edu.hcmuaf.st.web.entity.Order;
+import vn.edu.hcmuaf.st.web.entity.Role;
 import vn.edu.hcmuaf.st.web.entity.User;
 import vn.edu.hcmuaf.st.web.service.AccountService;
+import vn.edu.hcmuaf.st.web.util.PermissionUtil;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Map;
 
-@WebServlet(urlPatterns = {"/sign", "/register", "/forgot-password", "/enter-otp", "/login", "/reset-password", "/logout", "/profile", "/admin"})
+@WebServlet(urlPatterns = {"/sign", "/register", "/forgot-password", "/enter-otp", "/login", "/reset-password", "/logout", "/profile"})
 public class AccountController extends HttpServlet {
     private final AccountService accountService = new AccountService();
 
@@ -43,9 +46,6 @@ public class AccountController extends HttpServlet {
                 break;
             case "/profile":
                 viewProfile(request, response);
-                break;
-            case "/admin":
-                handleAdminDashboard(request, response); // New Admin endpoint
                 break;
         }
     }
@@ -78,7 +78,7 @@ public class AccountController extends HttpServlet {
                 handleProfileUpdate(request, response);
                 break;
             case "/admin":
-                handleAdminActions(request, response); // Handle Admin actions (e.g., update roles)
+                response.sendRedirect("admin.jsp");
                 break;
             default:
                 response.sendRedirect("/sign");
@@ -89,7 +89,7 @@ public class AccountController extends HttpServlet {
     private void commonSettings(HttpServletRequest request, HttpServletResponse response) {
         try {
             request.setCharacterEncoding("UTF-8");
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         response.setCharacterEncoding("UTF-8");
@@ -118,10 +118,15 @@ public class AccountController extends HttpServlet {
                 session.setAttribute("phoneNumber", user.getPhoneNumber());
                 session.setAttribute("birthDate", user.getBirthDate());
                 session.setAttribute("image", user.getImage());
-                session.setAttribute("idRole", user.getIdRole()); // Store role in session
                 session.setAttribute("user", user);
-                System.out.println(">> Logged in user ID = " + user.getIdUser() + ", Role = " + user.getIdRole());
-                response.sendRedirect(request.getContextPath() + "/home");
+                System.out.println(">> Logged in user ID = " + user.getIdUser() + ", Role = " + user.getRole());
+
+                // Chuyển hướng theo vai trò
+                if (user.isAdmin()) {
+                    response.sendRedirect(request.getContextPath() + "/admin");
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/home");
+                }
             }
         } else {
             request.setAttribute("error", "Tài khoản hoặc mật khẩu không đúng!");
@@ -228,7 +233,6 @@ public class AccountController extends HttpServlet {
         dispatcher.forward(request, response);
     }
 
-
     private void handleLogout(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
@@ -241,12 +245,12 @@ public class AccountController extends HttpServlet {
 
     private void handleProfileUpdate(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        User currentUser = (User) session.getAttribute("user");
-        if (currentUser == null) {
+        if (!PermissionUtil.isAuthenticated(request)) {
             response.sendRedirect("/sign");
             return;
         }
+        HttpSession session = request.getSession();
+        User currentUser = (User) session.getAttribute("user");
         String fullName = request.getParameter("fullName");
         String phoneNumber = request.getParameter("phoneNumber");
         String email = request.getParameter("email");
@@ -269,8 +273,7 @@ public class AccountController extends HttpServlet {
             request.getRequestDispatcher("/view/view-account/profile.jsp").forward(request, response);
             return;
         }
-        AccountService service = new AccountService();
-        boolean success = service.updateUserInfo(
+        boolean success = accountService.updateUserInfo(
                 currentUser.getIdUser(),
                 fullName,
                 phoneNumber,
@@ -295,7 +298,6 @@ public class AccountController extends HttpServlet {
             addr.setDistrict(district);
             addr.setProvince(province);
             session.setAttribute("user", currentUser);
-            session.setAttribute("idRole", currentUser.getIdRole()); // Update role in session
             request.setAttribute("user", currentUser);
             request.setAttribute("message", "Cập nhật thông tin thành công!");
             request.getRequestDispatcher("/view/view-account/profile.jsp").forward(request, response);
@@ -307,15 +309,15 @@ public class AccountController extends HttpServlet {
 
     private void viewProfile(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        String username = (String) session.getAttribute("username");
-        if (username == null) {
+        if (!PermissionUtil.isAuthenticated(request)) {
             request.getRequestDispatcher("/view/view-account/signin.jsp").forward(request, response);
             return;
         }
+        HttpSession session = request.getSession();
+        String username = (String) session.getAttribute("username");
         User user = accountService.getUserByUsernameAndAddress(username);
         if (user != null) {
-            session.setAttribute("idRole", user.getIdRole()); // Ensure role is in session
+            session.setAttribute("user", user);
             request.setAttribute("user", user);
             request.getRequestDispatcher("/view/view-account/profile.jsp").forward(request, response);
         } else {
@@ -326,38 +328,50 @@ public class AccountController extends HttpServlet {
 
     private void handleAdminDashboard(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        User currentUser = (User) session.getAttribute("user");
-        if (currentUser == null || !currentUser.isAdmin()) {
+        if (!PermissionUtil.hasRole(request, Role.RoleName.ROLE_ADMIN)) {
             request.setAttribute("error", "Bạn không có quyền truy cập trang này.");
             request.getRequestDispatcher("/view/view-account/signin.jsp").forward(request, response);
             return;
         }
-        // Load admin dashboard (e.g., list of users)
-        // For now, forward to a placeholder JSP
+        // Lấy dữ liệu động
+        List<User> users = accountService.getRecentUsers();
+        Map<String, Double> revenueData = accountService.getRevenueLastSixMonths();
+
+        request.setAttribute("users", users);
+        request.setAttribute("revenueData", revenueData);
         request.getRequestDispatcher("/view/view-account/admin.jsp").forward(request, response);
     }
 
     private void handleAdminActions(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        User currentUser = (User) session.getAttribute("user");
-        if (currentUser == null || !currentUser.isAdmin()) {
+        if (!PermissionUtil.hasRole(request, Role.RoleName.ROLE_ADMIN)) {
             request.setAttribute("error", "Bạn không có quyền thực hiện hành động này.");
             request.getRequestDispatcher("/view/view-account/signin.jsp").forward(request, response);
             return;
         }
         String action = request.getParameter("action");
         if ("updateRole".equals(action)) {
-            int userId = Integer.parseInt(request.getParameter("userId"));
-            int newRole = Integer.parseInt(request.getParameter("newRole"));
-            boolean success = accountService.updateUserRole(userId, newRole);
-            if (success) {
-                request.setAttribute("message", "Cập nhật vai trò thành công.");
-            } else {
-                request.setAttribute("error", "Cập nhật vai trò thất bại.");
+            try {
+                int userId = Integer.parseInt(request.getParameter("userId"));
+                String roleStr = request.getParameter("newRole");
+                Role.RoleName newRole = Role.RoleName.valueOf(roleStr);
+                boolean success = accountService.updateUserRole(userId, newRole);
+                if (success) {
+                    System.out.println("Admin updated role for user ID " + userId + " to " + newRole);
+                    request.setAttribute("message", "Cập nhật vai trò thành công.");
+                } else {
+                    request.setAttribute("error", "Cập nhật vai trò thất bại.");
+                }
+            } catch (IllegalArgumentException e) {
+                request.setAttribute("error", "Vai trò không hợp lệ.");
             }
         }
+        // Cập nhật lại dữ liệu để hiển thị
+
+        List<User> users = accountService.getRecentUsers();
+        Map<String, Double> revenueData = accountService.getRevenueLastSixMonths();
+        request.setAttribute("users", users);
+        request.setAttribute("revenueData", revenueData);
         request.getRequestDispatcher("/view/view-account/admin.jsp").forward(request, response);
     }
 }
