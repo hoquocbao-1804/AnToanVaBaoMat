@@ -3,7 +3,15 @@
 <%@ page import="java.util.stream.*" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-
+<%
+    Cart cart = (Cart) session.getAttribute("cart");
+    int totalQuantity = 0;
+    if (cart != null) {
+        totalQuantity = cart.getCartItems().values().stream()
+                .mapToInt(item -> item.getQuantity())
+                .sum();
+    }
+%>
 
 <head>
     <meta charset="utf-8">
