@@ -20,7 +20,7 @@
             <div class="list-group">
                 <a href="#" class="list-group-item list-group-item-action active">Dashboard</a>
                 <a href="${pageContext.request.contextPath}/cart" class="list-group-item list-group-item-action">Xem Giỏ Hàng</a>
-                <a href="${pageContext.request.contextPath}/history">Lịch sử mua hàng</a>
+                <a href="${pageContext.request.contextPath}/order-history" class="list-group-item list-group-item-action">Lịch sử mua hàng</a>
             </div>
         </div>
         <div class="col-md-9">
