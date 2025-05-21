@@ -7,6 +7,12 @@ import vn.edu.hcmuaf.st.web.entity.Address;
 import vn.edu.hcmuaf.st.web.entity.Order;
 import vn.edu.hcmuaf.st.web.entity.User;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
 public class OrderDao {
 
     private final Jdbi jdbi;
@@ -76,6 +82,28 @@ public class OrderDao {
                         })
                         .findOne()
                         .orElse(null)
+        );
+    }
+    public List<Order> getOrdersByUserId(int userId) {
+        String sql = """
+            SELECT idOrder, totalPrice, status, createAt
+              FROM orders
+             WHERE idUser = :userId
+          ORDER BY createAt DESC
+        """;
+
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("userId", userId)
+                        .map((rs, ctx) -> {
+                            Order o = new Order();
+                            o.setIdOrder(rs.getInt("idOrder"));
+                            o.setTotalPrice(rs.getDouble("totalPrice"));
+                            o.setStatus(rs.getString("status"));
+                            o.setCreatedAt(rs.getTimestamp("createAt").toLocalDateTime());
+                            return o;
+                        })
+                        .list()
         );
     }
 
