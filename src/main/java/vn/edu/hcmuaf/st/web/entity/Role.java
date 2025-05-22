@@ -8,21 +8,11 @@ public class Role {
         ROLE_ADMIN, ROLE_USER
     }
 
-    public int getIdRole() {
-        return idRole;
-    }
+    public int getIdRole() { return idRole; }
+    public void setIdRole(int idRole) { this.idRole = idRole; }
 
-    public void setIdRole(int idRole) {
-        this.idRole = idRole;
-    }
-
-    public RoleName getNameRole() {
-        return nameRole;
-    }
-
-    public void setNameRole(RoleName nameRole) {
-        this.nameRole = nameRole;
-    }
+    public RoleName getNameRole() { return nameRole; }
+    public void setNameRole(RoleName nameRole) { this.nameRole = nameRole; }
 
     @Override
     public String toString() {
