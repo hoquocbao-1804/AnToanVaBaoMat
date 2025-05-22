@@ -11,6 +11,7 @@
         <entry key="file://$PROJECT_DIR$/src/main/webapp/view/view-index/main.jsp" value="file://$PROJECT_DIR$/src/main/webapp/view/view-index" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/view/view-login/signin.jsp" value="file://$PROJECT_DIR$/src/main/webapp/view/view-login" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/view/view-order/cart.jsp" value="file://$PROJECT_DIR$/src/main/webapp/view/view-order" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/view/view-order/order-history.jsp" value="file://$PROJECT_DIR$/src/main/webapp/view/view-order" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/view/view-product/phantrang.jsp" value="file://$PROJECT_DIR$/src/main/webapp/view/view-product" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/view/view-product/store.jsp" value="file://$PROJECT_DIR$/src/main/webapp/view/view-product" />
       </map>
