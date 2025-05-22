@@ -2,50 +2,59 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<jsp:include page="../view-index/header.jsp"/>
+<jsp:include page="/view/view-index/header.jsp"/>
 
-<div class="container mt-4">
-  <div class="row">
+<div class="container my-4">
+  <h3>Lịch sử mua hàng</h3>
+  <c:choose>
+    <c:when test="${not empty orders}">
+      <c:forEach var="o" items="${orders}">
+        <!-- Invoice card -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Hóa đơn: #${o.idOrder}</h5>
+            <p class="card-text">
+              Phương thức: ${o.status} <br/>
+              Ngày: <fmt:formatDate value="${o.createdAt}" pattern="dd/MM/yyyy"/>
+            </p>
 
-    <!-- Nội dung chính: Lịch sử mua hàng -->
-    <div class="col-md-9">
-      <h3>Lịch sử mua hàng</h3>
-
-      <c:choose>
-        <c:when test="${not empty orders}">
-          <table class="table table-striped">
-            <thead>
-            <tr>
-              <th>Mã ĐH</th>
-              <th>Ngày đặt</th>
-              <th>Tổng tiền</th>
-              <th>Trạng thái</th>
-              <th>Chi tiết</th>
-            </tr>
-            </thead>
-            <tbody>
-            <c:forEach var="o" items="${orders}">
+            <!-- Bảng sản phẩm -->
+            <table class="table table-bordered">
+              <thead>
               <tr>
-                <td>${o.idOrder}</td>
-                <td><fmt:formatDate value="${o.createdAt}" pattern="dd/MM/yyyy HH:mm"/></td>
-                <td><fmt:formatNumber value="${o.totalPrice}" type="currency"/></td>
-                <td>${o.status}</td>
-                <td>
-                  <a href="${pageContext.request.contextPath}/order-detail?orderId=${o.idOrder}"
-                     class="btn btn-sm btn-primary">Xem</a>
-                </td>
+                <th>Sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
               </tr>
-            </c:forEach>
-            </tbody>
-          </table>
-        </c:when>
-        <c:otherwise>
-          <div class="alert alert-info">Bạn chưa có đơn hàng nào.</div>
-        </c:otherwise>
-      </c:choose>
+              </thead>
+              <tbody>
+              <c:forEach var="d" items="${detailsMap[o.idOrder]}">
+                <tr>
+                  <td>${d.nameProduct}</td>
+                  <td>${d.quantity}</td>
+                  <td><fmt:formatNumber value="${d.price * d.quantity}" type="currency"/></td>
+                </tr>
+              </c:forEach>
+              </tbody>
+            </table>
 
-    </div>
-  </div>
+            <!-- Tổng cộng -->
+            <div class="text-right">
+              <p><strong>Tổng tiền:</strong> <fmt:formatNumber value="${o.totalPrice}" type="currency"/></p>
+              <!-- Nếu có phí vận chuyển -->
+              <p><strong>Phí vận chuyển:</strong> <fmt:formatNumber value="${o.address != null ? o.address.getShippingFee() : 0}" type="currency"/></p>
+              <p><strong>Tổng thanh toán:</strong>
+                <fmt:formatNumber value="${o.totalPrice + (o.address != null ? o.address.getShippingFee() : 0)}" type="currency"/>
+              </p>
+            </div>
+          </div>
+        </div>
+      </c:forEach>
+    </c:when>
+    <c:otherwise>
+      <div class="alert alert-info">Bạn chưa có đơn hàng nào.</div>
+    </c:otherwise>
+  </c:choose>
 </div>
 
-<jsp:include page="../view-index/footer.jsp"/>
+<jsp:include page="/view/view-index/footer.jsp"/>
