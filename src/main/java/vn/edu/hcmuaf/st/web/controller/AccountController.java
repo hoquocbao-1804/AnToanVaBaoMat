@@ -404,7 +404,8 @@ public class AccountController extends HttpServlet {
             request.getRequestDispatcher("/view/view-account/signin.jsp").forward(request, response);
             return;
         }
-        User user = accountService.getUserByUsernameAndAddress(username);
+        // Thay vì getUserByUsernameAndAddress, gọi getUserByUsername
+        User user = accountService.getUserByUsername(username);
         if (user != null) {
             request.setAttribute("user", user);
             request.getRequestDispatcher("/view/view-account/profile.jsp").forward(request, response);
@@ -412,7 +413,8 @@ public class AccountController extends HttpServlet {
             request.setAttribute("error", "Không tìm thấy người dùng.");
             request.getRequestDispatcher("/view/view-account/signin.jsp").forward(request, response);
         }
-    }
+    }   
+
 
 
 }
