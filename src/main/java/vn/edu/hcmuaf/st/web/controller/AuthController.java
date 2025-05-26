@@ -206,7 +206,7 @@ public class AuthController extends HttpServlet {
         String confPassword = request.getParameter("confPassword");
         String email = (String) session.getAttribute("email");
 
-        if (password == null || confPassword == null || email == null || !password.equals(confPassword)) {
+        if (password == null || email == null || !password.equals(confPassword)) {
             request.setAttribute("status", "invalidInput");
             request.getRequestDispatcher("/view/view-account/reset-password.jsp").forward(request, response);
             return;
