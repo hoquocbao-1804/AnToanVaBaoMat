@@ -4,6 +4,7 @@ import org.jdbi.v3.core.Jdbi;
 import vn.edu.hcmuaf.st.web.dao.db.JDBIConnect;
 import vn.edu.hcmuaf.st.web.entity.Order;
 import vn.edu.hcmuaf.st.web.entity.OrderHistory;
+import vn.edu.hcmuaf.st.web.mapper.OrderMapper;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -17,12 +18,12 @@ public class OrderHistoryDao {
 
     public List<Order> getOrdersByUserId(int userId) {
         String sql = """
-                SELECT * FROM orders WHERE idUser = :userId ORDER BY createAt DESC
+                SELECT idOrder, idUser, idAddress, idCoupon, totalPrice, status, createAt FROM orders WHERE idUser = :userId ORDER BY createAt DESC
                 """;
         return jdbi.withHandle(handle ->
                 handle.createQuery(sql)
                         .bind("userId", userId)
-                        .mapToBean(Order.class)
+                        .map(new OrderMapper())
                         .list()
         );
     }

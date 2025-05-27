@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 
 import vn.edu.hcmuaf.st.web.dao.OrderDao;
 import vn.edu.hcmuaf.st.web.dao.OrderDetailDao;
+import vn.edu.hcmuaf.st.web.dao.OrderHistoryDao;
 import vn.edu.hcmuaf.st.web.entity.Order;
 import vn.edu.hcmuaf.st.web.entity.OrderDetail;
 import vn.edu.hcmuaf.st.web.entity.User;
@@ -33,18 +34,21 @@ public class HistoryServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/view/view-account/signin.jsp");
             return;
         }
-
+        int userId = user.getIdUser();
+        OrderHistoryDao dao = new OrderHistoryDao();
+        List<Order> orderList = dao.getOrdersByUserId(userId);
         // 1. Lấy danh sách đơn hàng
-        List<Order> orders = orderDao.getOrdersByUserId(user.getIdUser());
+//        List<Order> orders = orderDao.getOrdersByUserId(user.getIdUser());
         // 2. Cho từng đơn order, lấy chi tiết
-        Map<Integer, List<OrderDetail>> detailsMap = new HashMap<>();
-        for (Order o : orders) {
-            detailsMap.put(o.getIdOrder(), detailDao.getDetailsByOrderId(o.getIdOrder()));
-        }
+//        Map<Integer, List<OrderDetail>> detailsMap = new HashMap<>();
+//        for (Order o : orders) {
+//            detailsMap.put(o.getIdOrder(), detailDao.getDetailsByOrderId(o.getIdOrder()));
+//        }
 
         // 3. Đặt vào request
-        req.setAttribute("orders", orders);
-        req.setAttribute("detailsMap", detailsMap);
+        req.setAttribute("orders", orderList);
+//        req.setAttribute("orders", orders);
+//        req.setAttribute("detailsMap", detailsMap);
 
         // 4. Forward xuống JSP
         req.getRequestDispatcher("/view/view-order/order-history.jsp").forward(req, resp);
