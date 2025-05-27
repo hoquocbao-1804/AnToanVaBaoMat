@@ -2,8 +2,10 @@ package vn.edu.hcmuaf.st.web.dao;
 
 import org.jdbi.v3.core.Jdbi;
 import vn.edu.hcmuaf.st.web.dao.db.JDBIConnect;
+import vn.edu.hcmuaf.st.web.entity.Order;
 import vn.edu.hcmuaf.st.web.entity.OrderHistory;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 
 public class OrderHistoryDao {
@@ -12,6 +14,21 @@ public class OrderHistoryDao {
     public OrderHistoryDao() {
         this.jdbi = JDBIConnect.get();
     }
+
+    public List<Order> getOrdersByUserId(int userId) {
+        String sql = """
+                SELECT * FROM orders WHERE idUser = :userId ORDER BY createAt DESC
+                """;
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("userId", userId)
+                        .mapToBean(Order.class)
+                        .list()
+        );
+    }
+
+
+
 
     public void insertHistory(OrderHistory h) {
         String sql = """
@@ -29,18 +46,18 @@ public class OrderHistoryDao {
         );
     }
 
-    public List<OrderHistory> getHistoryByUserId(int userId) {
-        String sql = """
-            SELECT history_id, order_id, user_id, status, changed_at, note
-              FROM order_history
-             WHERE user_id = :userId
-          ORDER BY changed_at DESC
-        """;
-        return jdbi.withHandle(handle ->
-                handle.createQuery(sql)
-                        .bind("userId", userId)
-                        .mapToBean(OrderHistory.class)
-                        .list()
-        );
-    }
+//    public List<OrderHistory> getHistoryByUserId(int userId) {
+//        String sql = """
+//            SELECT history_id, order_id, user_id, status, changed_at, note
+//              FROM order_history
+//             WHERE user_id = :userId
+//          ORDER BY changed_at DESC
+//        """;
+//        return jdbi.withHandle(handle ->
+//                handle.createQuery(sql)
+//                        .bind("userId", userId)
+//                        .mapToBean(OrderHistory.class)
+//                        .list()
+//        );
+//    }
 }
