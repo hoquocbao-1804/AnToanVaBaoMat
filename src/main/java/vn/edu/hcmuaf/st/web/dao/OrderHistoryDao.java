@@ -20,22 +20,26 @@ public class OrderHistoryDao {
         String sql = """
                 SELECT idOrder, idUser, idAddress, idCoupon, totalPrice, status, createAt FROM orders WHERE idUser = :userId ORDER BY createAt DESC
                 """;
-        return jdbi.withHandle(handle ->
-                handle.createQuery(sql)
-                        .bind("userId", userId)
-                        .map(new OrderMapper())
-                        .list()
-        );
+        return jdbi.withHandle(handle -> {
+            System.out.println(">> RUNNING SQL WITH USER ID = " + userId);
+
+
+            handle.createQuery(sql);
+            List<Order> list = handle.createQuery("SELECT idOrder, idUser, idAddress, idCoupon, totalPrice, status, createAt FROM orders WHERE idUser = :userId ORDER BY createAt DESC")
+                    .bind("userId", userId)
+                    .map(new OrderMapper())
+                    .list();
+            System.out.println(">> RETURNED ORDERS: " + list.size());
+            return list;
+        });
     }
-
-
 
 
     public void insertHistory(OrderHistory h) {
         String sql = """
-            INSERT INTO order_history(order_id, user_id, status, changed_at, note)
-            VALUES (:orderId, :userId, :status, :changedAt, :note)
-        """;
+                    INSERT INTO order_history(order_id, user_id, status, changed_at, note)
+                    VALUES (:orderId, :userId, :status, :changedAt, :note)
+                """;
         jdbi.useHandle(handle ->
                 handle.createUpdate(sql)
                         .bind("orderId", h.getOrderId())

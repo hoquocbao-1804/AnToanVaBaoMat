@@ -12,45 +12,71 @@ import java.time.LocalDateTime;
 
 public class OrderMapper implements RowMapper<Order> {
     @Override
+//    public Order map(ResultSet rs, StatementContext ctx) throws SQLException {
+//        Order order = new Order();
+//
+//        // map đơn giản
+//        order.setIdOrder(rs.getInt("idOrder"));
+//        order.setTotalPrice(rs.getDouble("totalPrice"));
+//        order.setStatus(rs.getString("status"));
+//
+//        // map thời gian
+//        order.setCreatedAt(rs.getTimestamp("createAt").toLocalDateTime());
+//        if (hasColumn(rs, "updateAt") && rs.getTimestamp("updateAt") != null) {
+//            order.setUpdatedAt(rs.getTimestamp("updateAt").toLocalDateTime());
+//        }
+//
+//
+//        // map user
+//        User user = new User();
+//        user.setIdUser(rs.getInt("idUser"));
+//        order.setUser(user);
+//
+//        // map address
+//        Address address = new Address();
+//        address.setIdAddress(rs.getInt("idAddress"));
+//        order.setAddress(address);
+//
+//        // coupon có thể null
+//        int couponId = rs.getInt("idCoupon");
+//        if (!rs.wasNull()) {
+//            order.setIdCoupon(couponId);
+//        }
+//
+//        return order;
+//    }
+//    private boolean hasColumn(ResultSet rs, String columnName) {
+//        try {
+//            rs.findColumn(columnName);
+//            return true;
+//        } catch (SQLException e) {
+//            return false;
+//        }
+//    }
     public Order map(ResultSet rs, StatementContext ctx) throws SQLException {
-        Order order = new Order();
+        System.out.println(">> MAPPING ORDER ROW...");
 
-        // map đơn giản
+        Order order = new Order();
         order.setIdOrder(rs.getInt("idOrder"));
         order.setTotalPrice(rs.getDouble("totalPrice"));
         order.setStatus(rs.getString("status"));
-
-        // map thời gian
         order.setCreatedAt(rs.getTimestamp("createAt").toLocalDateTime());
-        if (hasColumn(rs, "updateAt") && rs.getTimestamp("updateAt") != null) {
-            order.setUpdatedAt(rs.getTimestamp("updateAt").toLocalDateTime());
-        }
 
-
-        // map user
         User user = new User();
         user.setIdUser(rs.getInt("idUser"));
         order.setUser(user);
 
-        // map address
         Address address = new Address();
         address.setIdAddress(rs.getInt("idAddress"));
         order.setAddress(address);
 
-        // coupon có thể null
         int couponId = rs.getInt("idCoupon");
         if (!rs.wasNull()) {
             order.setIdCoupon(couponId);
         }
 
+        System.out.println(">> ORDER MAPPED OK: " + order.getIdOrder());
         return order;
     }
-    private boolean hasColumn(ResultSet rs, String columnName) {
-        try {
-            rs.findColumn(columnName);
-            return true;
-        } catch (SQLException e) {
-            return false;
-        }
-    }
+
 }
