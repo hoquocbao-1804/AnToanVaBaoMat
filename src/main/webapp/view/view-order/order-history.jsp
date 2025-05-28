@@ -14,6 +14,7 @@
         <thead>
         <tr>
             <th>Mã đơn</th>
+            <th>Ma giam gia</th>
             <th>Tổng tiền</th>
             <th>Trạng thái</th>
             <th>Ngày tạo</th>
@@ -23,6 +24,7 @@
         <c:forEach var="order" items="${orderList}">
             <tr>
                 <td>${order.idOrder}</td>
+                <td>${order.Coupoin}<</td>
                 <td>${order.totalPrice}</td>
                 <td>${order.status}</td>
                 <td>${order.createdAt}</td>
