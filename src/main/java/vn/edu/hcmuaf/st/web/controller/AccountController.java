@@ -37,7 +37,11 @@ public class AccountController extends HttpServlet {
                 forward(request, response, "/view/view-account/signin.jsp");
                 break;
             case "/login":
-                handleGoogleLogin(request, response);
+                try {
+                    handleGoogleLogin(request, response);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             case "/reset-password":
                 forward(request, response, "/view/view-account/reset-password.jsp");
@@ -218,7 +222,7 @@ public class AccountController extends HttpServlet {
     }
 
     private void handleGoogleLogin(HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
+            throws Exception {
         String code = request.getParameter("code");
 
         if (isEmpty(code)) {
