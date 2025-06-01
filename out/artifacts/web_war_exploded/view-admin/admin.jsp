@@ -11,8 +11,13 @@
           rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="css/both-nav.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/admin-order.css">
+    <link rel="stylesheet" href="css/admin-user.css">
+    <link rel="stylesheet" href="css/admin-product.css">
+    <link rel="stylesheet" href="css/admin-coupon.css">
+    <link rel="stylesheet" href="css/admin-category.css">
     <title>Admin</title>
 </head>
 <body>

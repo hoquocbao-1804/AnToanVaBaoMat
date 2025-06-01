@@ -1,20 +1,22 @@
 package vn.edu.hcmuaf.st.web.controller;
 
-import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import vn.edu.hcmuaf.st.web.entity.GoogleAccount;
+import vn.edu.hcmuaf.st.web.entity.Role;
 import vn.edu.hcmuaf.st.web.entity.User;
 import vn.edu.hcmuaf.st.web.service.AccountService;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 @WebServlet(urlPatterns = {
         "/sign", "/register", "/forgot-password", "/enter-otp",
         "/login", "/reset-password", "/logout", "/profile"
 })
 public class AccountController extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(AccountController.class.getName());
     private final AccountService accountService = new AccountService();
 
     @Override
@@ -40,7 +42,8 @@ public class AccountController extends HttpServlet {
                 try {
                     handleGoogleLogin(request, response);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    LOGGER.severe("Google login error: " + e.getMessage());
+                    throw new ServletException("Lỗi đăng nhập Google", e);
                 }
                 break;
             case "/reset-password":
@@ -113,19 +116,34 @@ public class AccountController extends HttpServlet {
         if (accountService.login(username, password)) {
             User user = accountService.getUserByUsername(username);
             if (user != null) {
-                HttpSession session = request.getSession();
+                HttpSession session = request.getSession(true);
                 session.setAttribute("user", user);
 
-                if (user.getIdRole() == 1) {
+                // Log user details for debugging
+                LOGGER.info("User logged in: ID=" + user.getIdUser() + ", Username=" + user.getUsername() +
+                        ", Role=" + (user.getRole() != null ? user.getRole() : "null"));
+
+                // Check role for redirection
+                String role = user.getRole();
+                if (role == null) {
+                    LOGGER.warning("Role is null for user ID: " + user.getIdUser() + ". Defaulting to USER role.");
+                    role = "USER";
+                }
+                boolean isAdmin = "admin".equals(role);
+                if (isAdmin) {
+                    LOGGER.info("Redirecting to admin page for user ID: " + user.getIdUser());
                     response.sendRedirect(request.getContextPath() + "/view-admin/admin.jsp");
                 } else {
+                    LOGGER.info("Redirecting to home page for user ID: " + user.getIdUser());
                     response.sendRedirect(request.getContextPath() + "/home");
                 }
             } else {
+                LOGGER.warning("User not found after successful login: " + username);
                 request.setAttribute("error", "Tài khoản không tồn tại!");
                 forward(request, response, "/view/view-account/signin.jsp");
             }
         } else {
+            LOGGER.warning("Login failed for username: " + username);
             request.setAttribute("error", "Tài khoản hoặc mật khẩu không đúng!");
             forward(request, response, "/view/view-account/signin.jsp");
         }
@@ -154,8 +172,10 @@ public class AccountController extends HttpServlet {
 
         boolean isRegistered = accountService.register(username, password, fullname, email, phoneNumber);
         if (isRegistered) {
+            LOGGER.info("User registered successfully: " + username);
             forward(request, response, "/view/view-account/signin.jsp");
         } else {
+            LOGGER.warning("Registration failed for username: " + username);
             request.setAttribute("error", "Tên người dùng đã tồn tại hoặc lỗi hệ thống!");
             forward(request, response, "/view/view-account/register.jsp");
         }
@@ -179,20 +199,30 @@ public class AccountController extends HttpServlet {
             request.setAttribute("message", "OTP đã được gửi tới email của bạn.");
             forward(request, response, "/view/view-account/enter-otp.jsp");
         } catch (Exception e) {
+            LOGGER.severe("Error sending OTP: " + e.getMessage());
             throw new ServletException("Lỗi khi gửi OTP", e);
         }
     }
 
     private void handleOtpValidation(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int enteredOtp = Integer.parseInt(request.getParameter("otp"));
-        HttpSession session = request.getSession();
-        int storedOtp = (int) session.getAttribute("otp");
+        int enteredOtp;
+        try {
+            enteredOtp = Integer.parseInt(request.getParameter("otp"));
+        } catch (NumberFormatException e) {
+            request.setAttribute("message", "Mã OTP không hợp lệ.");
+            forward(request, response, "/view/view-account/enter-otp.jsp");
+            return;
+        }
 
-        if (enteredOtp == storedOtp) {
+        HttpSession session = request.getSession();
+        Integer storedOtp = (Integer) session.getAttribute("otp");
+
+        if (storedOtp != null && enteredOtp == storedOtp) {
             request.setAttribute("status", "success");
             forward(request, response, "/view/view-account/reset-password.jsp");
         } else {
+            LOGGER.warning("OTP validation failed for email: " + session.getAttribute("email"));
             request.setAttribute("message", "Mã OTP không chính xác.");
             forward(request, response, "/view/view-account/enter-otp.jsp");
         }
@@ -213,9 +243,11 @@ public class AccountController extends HttpServlet {
 
         boolean updated = accountService.updatePassword(email, password);
         if (updated) {
+            LOGGER.info("Password reset successful for email: " + email);
             request.setAttribute("status", "resetSuccess");
             forward(request, response, "/view/view-account/signin.jsp");
         } else {
+            LOGGER.warning("Password reset failed for email: " + email);
             request.setAttribute("status", "resetFailed");
             forward(request, response, "/view/view-account/reset-password.jsp");
         }
@@ -226,6 +258,7 @@ public class AccountController extends HttpServlet {
         String code = request.getParameter("code");
 
         if (isEmpty(code)) {
+            LOGGER.warning("Google login failed: missing code");
             response.sendRedirect(request.getContextPath() + "/view/view-account/signin.jsp?error=missing_code");
             return;
         }
@@ -238,17 +271,24 @@ public class AccountController extends HttpServlet {
             user.setUsername(googleAccount.getUsername());
             user.setEmail(googleAccount.getEmail());
             user.setFullName(googleAccount.getFullName());
+            user.setRole("USER");
             accountService.saveGoogleUser(user);
+            LOGGER.info("New Google user saved: " + user.getEmail());
         }
 
-        request.getSession().setAttribute("user", user);
+        HttpSession session = request.getSession(true);
+        session.setAttribute("user", user);
+        LOGGER.info("Google login successful for user: " + user.getEmail());
         response.sendRedirect(request.getContextPath() + "/home");
     }
 
     private void handleLogout(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         HttpSession session = request.getSession(false);
-        if (session != null) session.invalidate();
+        if (session != null) {
+            LOGGER.info("User logged out: " + (session.getAttribute("user") != null ? ((User) session.getAttribute("user")).getUsername() : "unknown"));
+            session.invalidate();
+        }
         response.sendRedirect(request.getContextPath() + "/sign");
     }
 
@@ -259,7 +299,7 @@ public class AccountController extends HttpServlet {
 
     private void handleProfileUpdate(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Cập nhật thông tin hồ sơ người dùng
+        LOGGER.info("Profile update requested");
         forward(request, response, "/view/view-account/profile.jsp");
     }
 

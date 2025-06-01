@@ -19,6 +19,19 @@
 
 
     <dependencies>
+
+            <!-- JSTL API tương thích Jakarta -->
+            <dependency>
+                <groupId>jakarta.servlet.jsp.jstl</groupId>
+                <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+                <version>3.0.0</version>
+            </dependency>
+            <!-- JSTL implementation -->
+            <dependency>
+                <groupId>org.glassfish.web</groupId>
+                <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+                <version>3.0.1</version>
+            </dependency>
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
@@ -124,7 +137,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20210307</version> <!-- Đây là phiên bản mới nhất tính đến thời điểm này -->
+            <version>20210307</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
