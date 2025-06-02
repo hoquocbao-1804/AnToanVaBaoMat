@@ -48,14 +48,12 @@ public class OrderDao {
         return jdbi.withHandle(handle ->
                 handle.createQuery("""
                                     SELECT 
-                                        o.idOrder, o.totalPrice, o.status, o.createdAt,
+                                        o.idOrder, o.totalPrice, o.status, o.createAt,
                                         u.idUser, u.fullName, u.email,
-                                        a.idAddress, a.address, a.ward, a.district, a.province,
-                                        p.paymentMethod
+                                        a.idAddress, a.address, a.ward, a.district, a.province
                                     FROM orders o
                                     LEFT JOIN users u ON o.idUser = u.idUser
                                     LEFT JOIN address a ON o.idAddress = a.idAddress
-                                    LEFT JOIN payments p ON o.idOrder = p.idOrder
                                     WHERE o.idOrder = :idOrder
                                 """)
                         .bind("idOrder", idOrder)
@@ -64,7 +62,7 @@ public class OrderDao {
                             order.setIdOrder(rs.getInt("idOrder"));
                             order.setTotalPrice(rs.getDouble("totalPrice"));
                             order.setStatus(rs.getString("status"));
-                            order.setCreatedAt(rs.getTimestamp("createdAt") != null ? rs.getTimestamp("createdAt").toLocalDateTime() : null);
+                            order.setCreatedAt(rs.getTimestamp("createAt") != null ? rs.getTimestamp("createAt").toLocalDateTime() : null);
 
                             User user = new User();
                             user.setIdUser(rs.getInt("idUser"));
@@ -91,21 +89,19 @@ public class OrderDao {
         return jdbi.withHandle(handle ->
                 handle.createQuery("""
                                     SELECT 
-                                        o.idOrder, o.totalPrice, o.status, o.createdAt,
+                                        o.idOrder, o.totalPrice, o.status, o.createAt,
                                         u.idUser, u.fullName, u.email,
-                                        a.idAddress, a.address, a.ward, a.district, a.province,
-                                        p.paymentMethod
+                                        a.idAddress, a.address, a.ward, a.district, a.province
                                     FROM orders o
                                     LEFT JOIN users u ON o.idUser = u.idUser
                                     LEFT JOIN address a ON o.idAddress = a.idAddress
-                                    LEFT JOIN payments p ON o.idOrder = p.idOrder
                                 """)
                         .map((rs, ctx) -> {
                             Order order = new Order();
                             order.setIdOrder(rs.getInt("idOrder"));
                             order.setTotalPrice(rs.getDouble("totalPrice"));
                             order.setStatus(rs.getString("status"));
-                            order.setCreatedAt(rs.getTimestamp("createdAt") != null ? rs.getTimestamp("createdAt").toLocalDateTime() : null);
+                            order.setCreatedAt(rs.getTimestamp("createAt") != null ? rs.getTimestamp("createAt").toLocalDateTime() : null);
 
                             User user = new User();
                             user.setIdUser(rs.getInt("idUser"));
@@ -136,52 +132,9 @@ public class OrderDao {
         );
     }
 
-    public List<Order> getAllOrdersWithPaymentMethod() {
-        return jdbi.withHandle(handle ->
-                handle.createQuery("""
-                                SELECT 
-                                    o.idOrder, o.totalPrice, o.status, o.createdAt,
-                                    u.idUser, u.fullName, u.email,
-                                    a.idAddress, a.address, a.ward, a.district, a.province,
-                                    p.paymentMethod
-                                FROM orders o
-                                LEFT JOIN users u ON o.idUser = u.idUser
-                                LEFT JOIN address a ON o.idAddress = a.idAddress
-                                LEFT JOIN payments p ON o.idOrder = p.idOrder
-                            """)
-                        .map((rs, ctx) -> {
-                            Order order = new Order();
-                            order.setIdOrder(rs.getInt("idOrder"));
-                            order.setTotalPrice(rs.getDouble("totalPrice"));
-                            order.setStatus(rs.getString("status"));
-                            order.setCreatedAt(rs.getTimestamp("createdAt") != null ? rs.getTimestamp("createdAt").toLocalDateTime() : null);
-
-                            User user = new User();
-                            user.setIdUser(rs.getInt("idUser"));
-                            user.setFullName(rs.getString("fullName"));
-                            user.setEmail(rs.getString("email"));
-                            order.setUser(user);
-
-                            Address address = new Address();
-                            address.setIdAddress(rs.getInt("idAddress"));
-                            address.setAddress(rs.getString("address"));
-                            address.setWard(rs.getString("ward"));
-                            address.setDistrict(rs.getString("district"));
-                            address.setProvince(rs.getString("province"));
-                            order.setAddress(address);
-
-                            return order;
-                        })
-                        .list()
-        );
-    }
-
     public void deleteOrder(int orderId) {
         jdbi.withHandle(handle -> {
-            // Xóa các bản ghi liên quan trong bảng payments và order_details trước
-            handle.createUpdate("DELETE FROM payments WHERE idOrder = :idOrder")
-                    .bind("idOrder", orderId)
-                    .execute();
+            // Xóa các bản ghi liên quan trong bảng order_details trước
             handle.createUpdate("DELETE FROM order_details WHERE idOrder = :idOrder")
                     .bind("idOrder", orderId)
                     .execute();
@@ -192,4 +145,6 @@ public class OrderDao {
             return null;
         });
     }
+
+
 }

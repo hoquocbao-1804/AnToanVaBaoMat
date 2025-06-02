@@ -129,38 +129,56 @@
                 Tổng sản phẩm bán được (6 tháng) <span>1000 sản phẩm</span>
             </div>
         </div>
-    </section>
-    <!-- Table -->
-    <section class="tables">
-        <!-- Order Table -->
-        <div class="container-table">
-            <h2>Tình trạng đơn hàng</h2>
-            <table class="table" id="orderTable">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên khách hàng</th>
-                    <th>Tổng tiền</th>
-                    <th>Hình thức thanh toán</th>
-                    <th>Ngày bắt đầu</th>
-                    <th>Trạng thái</th>
-                    <th>Tính năng</th>
-                </tr>
-                </thead>
-                <tbody>
-                <c:if test="${empty orders}">
+        <!-- Table -->
+        <section class="tables">
+            <!-- Order Table -->
+            <div class="container-table">
+                <h2>Tình trạng đơn hàng</h2>
+                <table class="table" id="orderTable">
+                    <thead>
                     <tr>
-                        <td colspan="7">Không có dữ liệu để hiển thị</td>
+                        <th>ID</th>
+                        <th>Tên khách hàng</th>
+                        <th>Tổng tiền</th>
+                        <th>Ngày bắt đầu</th>
+                        <th>Trạng thái</th>
+                        <th>Tính năng</th>
                     </tr>
-                </c:if>
-                <c:forEach var="order" items="${orders}">
-                    <tr>
-                        <td>${order.idOrder}</td>
-                        <td>${order.user != null && order.user.fullName != null ? order.user.fullName : 'Không xác định'}</td>
-                        <td><fmt:formatNumber value="${order.totalPrice}" type="currency" currencySymbol="đ" groupingUsed="true"/></td>
-                        <td>${order.paymentMethod != null ? order.paymentMethod : 'Chưa xác định'}</td>
-                        <td><fmt:formatDate value="${order.createdAt}" pattern="yyyy-MM-dd"/></td>
-                        <td>
+                    </thead>
+                    <tbody>
+                    <c:if test="${empty orders}">
+                        <tr>
+                            <td colspan="6">Không có dữ liệu để hiển thị</td>
+                        </tr>
+                    </c:if>
+                    <c:forEach var="order" items="${orders}">
+                        <tr>
+                            <td>${order.idOrder}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${order.user != null && order.user.fullName != null}">
+                                        ${order.user.fullName}
+                                    </c:when>
+                                    <c:otherwise>
+                                        Không xác định
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
+                                <fmt:formatNumber value="${order.totalPrice}" type="currency" currencySymbol="đ" groupingUsed="true" maxFractionDigits="0"/>
+                            </td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${order.createdAt != null}">
+                                        <fmt:parseDate value="${order.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate"/>
+                                        <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
+                                    </c:when>
+                                    <c:otherwise>
+                                        Không xác định
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
                         <span class="status-label
                             ${order.status == 'Chờ xử lý' || order.status == 'Chờ xác nhận' ? 'pending' :
                               order.status == 'Đang vận chuyển' ? 'in-transit' :
@@ -168,26 +186,27 @@
                               order.status == 'Đã hủy' ? 'cancelled' : ''}">
                                 ${order.status}
                         </span>
-                        </td>
-                        <td>
-                            <button class="btn btn-trash" onclick="deleteOrder(${order.idOrder})"><i class="fas fa-trash-alt"></i></button>
-                            <button class="btn btn-edit" onclick="showStatusDropdown(${order.idOrder}, '${order.status}')"><i class="fas fa-edit"></i></button>
-                            <div id="statusDropdown-${order.idOrder}" class="status-dropdown" style="display: none;">
-                                <select id="statusSelect-${order.idOrder}">
-                                    <option value="Chờ xác nhận" ${order.status == 'Chờ xác nhận' ? 'selected' : ''}>Chờ xác nhận</option>
-                                    <option value="Đang vận chuyển" ${order.status == 'Đang vận chuyển' ? 'selected' : ''}>Đang vận chuyển</option>
-                                    <option value="Đã hoàn thành" ${order.status == 'Đã hoàn thành' ? 'selected' : ''}>Đã hoàn thành</option>
-                                    <option value="Đã hủy" ${order.status == 'Đã hủy' ? 'selected' : ''}>Đã hủy</option>
-                                </select>
-                                <button onclick="updateStatus(${order.idOrder})">Lưu</button>
-                            </div>
-                        </td>
-                    </tr>
-                </c:forEach>
-                </tbody>
-            </table>
-        </div>
-    </section>
+                            </td>
+                            <td>
+                                <button class="btn btn-trash" onclick="deleteOrder(${order.idOrder})"><i class="fas fa-trash-alt"></i></button>
+                                <button class="btn btn-edit" onclick="showStatusDropdown(${order.idOrder}, '${order.status}')"><i class="fas fa-edit"></i></button>
+                                <div id="statusDropdown-${order.idOrder}" class="status-dropdown" style="display: none;">
+                                    <select id="statusSelect-${order.idOrder}">
+                                        <option value="Chờ xác nhận" ${order.status == 'Chờ xác nhận' ? 'selected' : ''}>Chờ xác nhận</option>
+                                        <option value="Đang vận chuyển" ${order.status == 'Đang vận chuyển' ? 'selected' : ''}>Đang vận chuyển</option>
+                                        <option value="Đã hoàn thành" ${order.status == 'Đã hoàn thành' ? 'selected' : ''}>Đã hoàn thành</option>
+                                        <option value="Đã hủy" ${order.status == 'Đã hủy' ? 'selected' : ''}>Đã hủy</option>
+                                    </select>
+                                    <button onclick="updateStatus(${order.idOrder})">Lưu</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
 
         <div class="container-table">
             <!-- table2 2 -->

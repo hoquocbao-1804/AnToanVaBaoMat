@@ -8,9 +8,8 @@ $(document).ready(function () {
     });
 });
 
+
     $(document).ready(function () {
-    // Tạm thời tắt DataTables để kiểm tra dữ liệu
-    /*
     $('#orderTable').DataTable({
         "paging": true,
         "searching": true,
@@ -26,12 +25,11 @@ $(document).ready(function () {
                 "next": "Tiếp",
                 "previous": "Trước"
             }
-        }
+        },
+        "destroy": true
     });
-    */
 });
 
-    // Hiển thị dropdown trạng thái
     function showStatusDropdown(orderId, currentStatus) {
     document.querySelectorAll('.status-dropdown').forEach(dropdown => {
         dropdown.style.display = 'none';
@@ -40,7 +38,6 @@ $(document).ready(function () {
     dropdown.style.display = 'flex';
 }
 
-    // Cập nhật trạng thái đơn hàng
     function updateStatus(orderId) {
     const select = document.getElementById(`statusSelect-${orderId}`);
     const newStatus = select.value;
@@ -72,7 +69,6 @@ $(document).ready(function () {
 });
 }
 
-    // Xóa đơn hàng
     function deleteOrder(orderId) {
     if (confirm('Bạn có chắc muốn xóa đơn hàng này?')) {
     fetch('${pageContext.request.contextPath}/admin', {
