@@ -130,12 +130,10 @@
             </div>
         </div>
     </section>
-
     <!-- Table -->
     <section class="tables">
         <!-- Order Table -->
         <div class="container-table">
-            <!-- table 1 -->
             <h2>Tình trạng đơn hàng</h2>
             <table class="table" id="orderTable">
                 <thead>
@@ -150,20 +148,21 @@
                 </tr>
                 </thead>
                 <tbody>
+                <c:if test="${empty orders}">
+                    <tr>
+                        <td colspan="7">Không có dữ liệu để hiển thị</td>
+                    </tr>
+                </c:if>
                 <c:forEach var="order" items="${orders}">
                     <tr>
                         <td>${order.idOrder}</td>
-                        <td>${order.user.fullName}</td>
+                        <td>${order.user != null && order.user.fullName != null ? order.user.fullName : 'Không xác định'}</td>
                         <td><fmt:formatNumber value="${order.totalPrice}" type="currency" currencySymbol="đ" groupingUsed="true"/></td>
-                        <td>
-                            <!-- Lấy hình thức thanh toán từ bảng payments -->
-                            <!-- Giả sử bạn đã lấy thông tin payment trong AdminServlet -->
-                                ${order.paymentMethod != null ? order.paymentMethod : 'Chưa xác định'}
-                        </td>
+                        <td>${order.paymentMethod != null ? order.paymentMethod : 'Chưa xác định'}</td>
                         <td><fmt:formatDate value="${order.createdAt}" pattern="yyyy-MM-dd"/></td>
                         <td>
                         <span class="status-label
-                            ${order.status == 'Chờ xử lý' ? 'pending' :
+                            ${order.status == 'Chờ xử lý' || order.status == 'Chờ xác nhận' ? 'pending' :
                               order.status == 'Đang vận chuyển' ? 'in-transit' :
                               order.status == 'Đã hoàn thành' ? 'completed' :
                               order.status == 'Đã hủy' ? 'cancelled' : ''}">
@@ -175,7 +174,7 @@
                             <button class="btn btn-edit" onclick="showStatusDropdown(${order.idOrder}, '${order.status}')"><i class="fas fa-edit"></i></button>
                             <div id="statusDropdown-${order.idOrder}" class="status-dropdown" style="display: none;">
                                 <select id="statusSelect-${order.idOrder}">
-                                    <option value="Chờ xử lý" ${order.status == 'Chờ xử lý' ? 'selected' : ''}>Chờ xử lý</option>
+                                    <option value="Chờ xác nhận" ${order.status == 'Chờ xác nhận' ? 'selected' : ''}>Chờ xác nhận</option>
                                     <option value="Đang vận chuyển" ${order.status == 'Đang vận chuyển' ? 'selected' : ''}>Đang vận chuyển</option>
                                     <option value="Đã hoàn thành" ${order.status == 'Đã hoàn thành' ? 'selected' : ''}>Đã hoàn thành</option>
                                     <option value="Đã hủy" ${order.status == 'Đã hủy' ? 'selected' : ''}>Đã hủy</option>

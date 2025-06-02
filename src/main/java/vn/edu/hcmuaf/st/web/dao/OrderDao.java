@@ -14,7 +14,13 @@ public class OrderDao {
     private final Jdbi jdbi;
 
     public OrderDao() {
-        this.jdbi = JDBIConnect.get();
+        try {
+            this.jdbi = JDBIConnect.get();
+            System.out.println("Kết nối JDBI thành công!");
+        } catch (Exception e) {
+            System.err.println("Lỗi kết nối JDBI: " + e.getMessage());
+            throw new RuntimeException("Không thể kết nối đến cơ sở dữ liệu", e);
+        }
     }
 
     public int insertOrder(Order order) {
@@ -44,10 +50,12 @@ public class OrderDao {
                                     SELECT 
                                         o.idOrder, o.totalPrice, o.status, o.createdAt,
                                         u.idUser, u.fullName, u.email,
-                                        a.idAddress, a.address, a.ward, a.district, a.province
+                                        a.idAddress, a.address, a.ward, a.district, a.province,
+                                        p.paymentMethod
                                     FROM orders o
-                                    JOIN users u ON o.idUser = u.idUser
-                                    JOIN address a ON o.idAddress = a.idAddress
+                                    LEFT JOIN users u ON o.idUser = u.idUser
+                                    LEFT JOIN address a ON o.idAddress = a.idAddress
+                                    LEFT JOIN payments p ON o.idOrder = p.idOrder
                                     WHERE o.idOrder = :idOrder
                                 """)
                         .bind("idOrder", idOrder)
@@ -56,16 +64,14 @@ public class OrderDao {
                             order.setIdOrder(rs.getInt("idOrder"));
                             order.setTotalPrice(rs.getDouble("totalPrice"));
                             order.setStatus(rs.getString("status"));
-                            order.setCreatedAt(rs.getTimestamp("createdAt").toLocalDateTime());
+                            order.setCreatedAt(rs.getTimestamp("createdAt") != null ? rs.getTimestamp("createdAt").toLocalDateTime() : null);
 
-                            // User
                             User user = new User();
                             user.setIdUser(rs.getInt("idUser"));
                             user.setFullName(rs.getString("fullName"));
                             user.setEmail(rs.getString("email"));
                             order.setUser(user);
 
-                            // Address
                             Address address = new Address();
                             address.setIdAddress(rs.getInt("idAddress"));
                             address.setAddress(rs.getString("address"));
@@ -81,33 +87,32 @@ public class OrderDao {
         );
     }
 
-    // Thêm phương thức lấy tất cả đơn hàng
     public List<Order> getAllOrders() {
         return jdbi.withHandle(handle ->
                 handle.createQuery("""
                                     SELECT 
                                         o.idOrder, o.totalPrice, o.status, o.createdAt,
                                         u.idUser, u.fullName, u.email,
-                                        a.idAddress, a.address, a.ward, a.district, a.province
+                                        a.idAddress, a.address, a.ward, a.district, a.province,
+                                        p.paymentMethod
                                     FROM orders o
-                                    JOIN users u ON o.idUser = u.idUser
-                                    JOIN address a ON o.idAddress = a.idAddress
+                                    LEFT JOIN users u ON o.idUser = u.idUser
+                                    LEFT JOIN address a ON o.idAddress = a.idAddress
+                                    LEFT JOIN payments p ON o.idOrder = p.idOrder
                                 """)
                         .map((rs, ctx) -> {
                             Order order = new Order();
                             order.setIdOrder(rs.getInt("idOrder"));
                             order.setTotalPrice(rs.getDouble("totalPrice"));
                             order.setStatus(rs.getString("status"));
-                            order.setCreatedAt(rs.getTimestamp("createdAt").toLocalDateTime());
+                            order.setCreatedAt(rs.getTimestamp("createdAt") != null ? rs.getTimestamp("createdAt").toLocalDateTime() : null);
 
-                            // User
                             User user = new User();
                             user.setIdUser(rs.getInt("idUser"));
                             user.setFullName(rs.getString("fullName"));
                             user.setEmail(rs.getString("email"));
                             order.setUser(user);
 
-                            // Address
                             Address address = new Address();
                             address.setIdAddress(rs.getInt("idAddress"));
                             address.setAddress(rs.getString("address"));
@@ -122,7 +127,6 @@ public class OrderDao {
         );
     }
 
-    // Thêm phương thức cập nhật trạng thái đơn hàng
     public void updateOrderStatus(int orderId, String status) {
         jdbi.withHandle(handle ->
                 handle.createUpdate("UPDATE orders SET status = :status, updatedAt = NOW() WHERE idOrder = :idOrder")
@@ -130,5 +134,62 @@ public class OrderDao {
                         .bind("idOrder", orderId)
                         .execute()
         );
+    }
+
+    public List<Order> getAllOrdersWithPaymentMethod() {
+        return jdbi.withHandle(handle ->
+                handle.createQuery("""
+                                SELECT 
+                                    o.idOrder, o.totalPrice, o.status, o.createdAt,
+                                    u.idUser, u.fullName, u.email,
+                                    a.idAddress, a.address, a.ward, a.district, a.province,
+                                    p.paymentMethod
+                                FROM orders o
+                                LEFT JOIN users u ON o.idUser = u.idUser
+                                LEFT JOIN address a ON o.idAddress = a.idAddress
+                                LEFT JOIN payments p ON o.idOrder = p.idOrder
+                            """)
+                        .map((rs, ctx) -> {
+                            Order order = new Order();
+                            order.setIdOrder(rs.getInt("idOrder"));
+                            order.setTotalPrice(rs.getDouble("totalPrice"));
+                            order.setStatus(rs.getString("status"));
+                            order.setCreatedAt(rs.getTimestamp("createdAt") != null ? rs.getTimestamp("createdAt").toLocalDateTime() : null);
+
+                            User user = new User();
+                            user.setIdUser(rs.getInt("idUser"));
+                            user.setFullName(rs.getString("fullName"));
+                            user.setEmail(rs.getString("email"));
+                            order.setUser(user);
+
+                            Address address = new Address();
+                            address.setIdAddress(rs.getInt("idAddress"));
+                            address.setAddress(rs.getString("address"));
+                            address.setWard(rs.getString("ward"));
+                            address.setDistrict(rs.getString("district"));
+                            address.setProvince(rs.getString("province"));
+                            order.setAddress(address);
+
+                            return order;
+                        })
+                        .list()
+        );
+    }
+
+    public void deleteOrder(int orderId) {
+        jdbi.withHandle(handle -> {
+            // Xóa các bản ghi liên quan trong bảng payments và order_details trước
+            handle.createUpdate("DELETE FROM payments WHERE idOrder = :idOrder")
+                    .bind("idOrder", orderId)
+                    .execute();
+            handle.createUpdate("DELETE FROM order_details WHERE idOrder = :idOrder")
+                    .bind("idOrder", orderId)
+                    .execute();
+            // Xóa đơn hàng
+            handle.createUpdate("DELETE FROM orders WHERE idOrder = :idOrder")
+                    .bind("idOrder", orderId)
+                    .execute();
+            return null;
+        });
     }
 }
