@@ -105,5 +105,8 @@ public class Address implements Serializable
                 '}';
     }
 
+    public void setDetails(String addressDetails) {
+        this.address = addressDetails;
+    }
 }
 

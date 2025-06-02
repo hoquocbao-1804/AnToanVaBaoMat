@@ -132,7 +132,7 @@ public class AccountController extends HttpServlet {
                 boolean isAdmin = "admin".equals(role);
                 if (isAdmin) {
                     LOGGER.info("Redirecting to admin page for user ID: " + user.getIdUser());
-                    response.sendRedirect(request.getContextPath() + "/view-admin/admin.jsp");
+                    response.sendRedirect(request.getContextPath() + "/admin");
                 } else {
                     LOGGER.info("Redirecting to home page for user ID: " + user.getIdUser());
                     response.sendRedirect(request.getContextPath() + "/home");

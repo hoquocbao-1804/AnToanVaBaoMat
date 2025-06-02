@@ -150,57 +150,45 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>AL3947</td>
-                    <td>Phạm Thị Ngọc</td>
-                    <td>19.770.000 đ</td>
-                    <td>Thẻ tín dụng</td>
-                    <td>2024-11-01</td>
-                    <td><span class="status-label pending">Chờ xử lý</span></td>
-                    <td>
-                        <button class="btn btn-trash"><i class="fas fa-trash-alt"></i></button>
-                        <button class="btn btn-edit"><i class="fas fa-edit"></i></button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>ER3835</td>
-                    <td>Nguyễn Thị Mỹ Yến</td>
-                    <td>16.770.000 đ</td>
-                    <td>Thanh toán khi nhận hàng</td>
-                    <td>2024-11-02</td>
-                    <td><span class="status-label in-transit">Đang vận chuyển</span></td>
-                    <td>
-                        <button class="btn btn-trash"><i class="fas fa-trash-alt"></i></button>
-                        <button class="btn btn-edit"><i class="fas fa-edit"></i></button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>MD0837</td>
-                    <td>Triệu Thanh Phú</td>
-                    <td>9.400.000 đ</td>
-                    <td>Ví điện tử</td>
-                    <td>2024-11-03</td>
-                    <td><span class="status-label completed">Đã hoàn thành</span></td>
-                    <td>
-                        <button class="btn btn-trash"><i class="fas fa-trash-alt"></i></button>
-                        <button class="btn btn-edit"><i class="fas fa-edit"></i></button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>MT9835</td>
-                    <td>Đặng Hoàng Phúc</td>
-                    <td>40.650.000 đ</td>
-                    <td>Chuyển khoản ngân hàng</td>
-                    <td>2024-11-04</td>
-                    <td><span class="status-label cancelled">Đã hủy</span></td>
-                    <td>
-                        <button class="btn btn-trash"><i class="fas fa-trash-alt"></i></button>
-                        <button class="btn btn-edit"><i class="fas fa-edit"></i></button>
-                    </td>
-                </tr>
+                <c:forEach var="order" items="${orders}">
+                    <tr>
+                        <td>${order.idOrder}</td>
+                        <td>${order.user.fullName}</td>
+                        <td><fmt:formatNumber value="${order.totalPrice}" type="currency" currencySymbol="đ" groupingUsed="true"/></td>
+                        <td>
+                            <!-- Lấy hình thức thanh toán từ bảng payments -->
+                            <!-- Giả sử bạn đã lấy thông tin payment trong AdminServlet -->
+                                ${order.paymentMethod != null ? order.paymentMethod : 'Chưa xác định'}
+                        </td>
+                        <td><fmt:formatDate value="${order.createdAt}" pattern="yyyy-MM-dd"/></td>
+                        <td>
+                        <span class="status-label
+                            ${order.status == 'Chờ xử lý' ? 'pending' :
+                              order.status == 'Đang vận chuyển' ? 'in-transit' :
+                              order.status == 'Đã hoàn thành' ? 'completed' :
+                              order.status == 'Đã hủy' ? 'cancelled' : ''}">
+                                ${order.status}
+                        </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-trash" onclick="deleteOrder(${order.idOrder})"><i class="fas fa-trash-alt"></i></button>
+                            <button class="btn btn-edit" onclick="showStatusDropdown(${order.idOrder}, '${order.status}')"><i class="fas fa-edit"></i></button>
+                            <div id="statusDropdown-${order.idOrder}" class="status-dropdown" style="display: none;">
+                                <select id="statusSelect-${order.idOrder}">
+                                    <option value="Chờ xử lý" ${order.status == 'Chờ xử lý' ? 'selected' : ''}>Chờ xử lý</option>
+                                    <option value="Đang vận chuyển" ${order.status == 'Đang vận chuyển' ? 'selected' : ''}>Đang vận chuyển</option>
+                                    <option value="Đã hoàn thành" ${order.status == 'Đã hoàn thành' ? 'selected' : ''}>Đã hoàn thành</option>
+                                    <option value="Đã hủy" ${order.status == 'Đã hủy' ? 'selected' : ''}>Đã hủy</option>
+                                </select>
+                                <button onclick="updateStatus(${order.idOrder})">Lưu</button>
+                            </div>
+                        </td>
+                    </tr>
+                </c:forEach>
                 </tbody>
             </table>
         </div>
+    </section>
 
         <div class="container-table">
             <!-- table2 2 -->
