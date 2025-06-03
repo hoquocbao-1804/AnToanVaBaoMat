@@ -366,20 +366,15 @@ public class AccountController extends HttpServlet {
     private void viewProfile(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-        String username = (String) session.getAttribute("username");
-        if (username == null) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            LOGGER.info("No user found in session, redirecting to signin");
             request.getRequestDispatcher("/view/view-account/signin.jsp").forward(request, response);
             return;
         }
-        User user = accountService.getUserByUsername(username);
-
-        if (user != null) {
-            request.setAttribute("user", user);
-            request.getRequestDispatcher("/view/view-account/profile.jsp").forward(request, response);
-        } else {
-            request.setAttribute("error", "Không tìm thấy người dùng.");
-            request.getRequestDispatcher("/view/view-account/signin.jsp").forward(request, response);
-        }
+        LOGGER.info("Viewing profile for user: " + user.getUsername());
+        request.setAttribute("user", user);
+        request.getRequestDispatcher("/view/view-account/profile.jsp").forward(request, response);
     }
     private boolean isEmpty(String... values) {
         for (String val : values) {
