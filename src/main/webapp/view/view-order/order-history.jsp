@@ -7,39 +7,45 @@
 
 <div class="container my-4">
     <h3>Lịch sử mua hàng</h3>
-    <!-- hiện số đơn -->
     <p>Số đơn hàng: <strong>${fn:length(orderList)}</strong></p>
 
-    <!-- nếu không có đơn nào -->
     <c:if test="${empty orderList}">
         <p><em>Bạn chưa có đơn hàng nào.</em></p>
     </c:if>
 
-    <!-- nếu có thì lặp -->
+<%--    <c:if test="${not empty orderList}">--%>
+<%--        <table border="1" cellpadding="8">--%>
+<%--            <thead>--%>
+<%--            <tr>--%>
+<%--                <th>Mã hóa đơn</th>--%>
+<%--                <th>Ngày tạo</th>--%>
+<%--                <th>Sản phẩm</th>--%>
+<%--                <th>Thành tiền</th>--%>
+<%--            </tr>--%>
+<%--            </thead>--%>
+<%--            <tbody>--%>
+<%--            <c:forEach var="o" items="${orderList}">--%>
+<%--                <tr>--%>
+<%--                    <td>#${o.idOrder}</td>--%>
+<%--                    <td>${o.createAt}</td>--%>
+<%--                    <td>${o.productName}</td>--%>
+<%--                    <td>${o.totalPrice}</td>--%>
+<%--                </tr>--%>
+<%--            </c:forEach>--%>
+<%--            </tbody>--%>
+<%--        </table>--%>
+<%--    </c:if>--%>
     <c:if test="${not empty orderList}">
-        <table border="1" cellpadding="8">
-            <thead>
-            <tr>
-                <th>Mã hóa đơn</th>
-                <th>Ngày tạo</th>
-                <th>Sản phẩm</th>
-                <th>Thành tiền</th>
-            </tr>
-            </thead>
-            <tbody>
+        <div class="order-list">
             <c:forEach var="o" items="${orderList}">
-                <tr>
-                    <!-- hiển thị ví dụ #28 -->
-                    <td>#${o.idOrder}</td>
-                    <!-- format ngày nếu muốn -->
-                    <td>${o.createAt}</td>
-                    <!-- giả sử trong Order object bạn có sẵn tên sản phẩm và totalPrice-->
-                    <td>${o.productName}</td>
-                    <td>${o.totalPrice}</td>
-                </tr>
+                <div class="order-card" style="border:1px solid #ccc; padding:16px; margin-bottom:12px; border-radius:8px;">
+                    <p><strong>Mã hóa đơn:</strong> #${o.idOrder}</p>
+                    <p><strong>Ngày tạo:</strong> ${o.createAt}</p>
+                    <p><strong>Sản phẩm:</strong> ${o.productName}</p>
+                    <p><strong>Thành tiền:</strong> ${o.totalPrice}</p>
+                </div>
             </c:forEach>
-            </tbody>
-        </table>
+        </div>
     </c:if>
 </div>
 
