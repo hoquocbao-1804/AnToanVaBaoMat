@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpSession;
 
 import vn.edu.hcmuaf.st.web.dao.OrderDao;
 import vn.edu.hcmuaf.st.web.dao.OrderDetailDao;
-import vn.edu.hcmuaf.st.web.dao.OrderHistoryDao;
 import vn.edu.hcmuaf.st.web.entity.Order;
 import vn.edu.hcmuaf.st.web.entity.OrderDetail;
 import vn.edu.hcmuaf.st.web.entity.User;
@@ -34,20 +33,8 @@ public class HistoryServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/view/view-account/signin.jsp");
             return;
         }
-        int userId = user.getIdUser();
-        OrderHistoryDao dao = new OrderHistoryDao();
-        List<Order> orderList = dao.getOrdersByUserId(userId);
-//        List<Order> orders = orderDao.getOrdersByUserId(user.getIdUser());
-//        Map<Integer, List<OrderDetail>> detailsMap = new HashMap<>();
-//        for (Order o : orders) {
-//            detailsMap.put(o.getIdOrder(), detailDao.getDetailsByOrderId(o.getIdOrder()));
-//        }
 
-        req.setAttribute("ordersList", orderList);
-//        req.setAttribute("orders", orders);
-//        req.setAttribute("detailsMap", detailsMap);
 
         req.getRequestDispatcher("/view/view-order/order-history.jsp").forward(req, resp);
-
     }
 }

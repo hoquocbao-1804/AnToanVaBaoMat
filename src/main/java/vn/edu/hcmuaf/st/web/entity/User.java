@@ -1,52 +1,17 @@
 package vn.edu.hcmuaf.st.web.entity;
 
-import java.util.Date;
-
 public class User {
     private int idUser;
-    private int idRole;
     private String username;
-    private String password;
     private String fullName;
     private String email;
     private String phoneNumber;
-    private Boolean active;
-    private String birthDate;
-    private String image;
-    private String authProvider;
-    private String socialId;
-    private Date createAt;
-    private Address address;
+    private String password; // Thêm để khớp với AccountRepository
+    private String birthDate; // Thêm để khớp với AccountRepository
+    private Address address; // Thêm để khớp với AccountRepository
+    private String role; // Vai trò kiểu String (admin hoặc USER)
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "idUser=" + idUser +
-                ", idRole=" + idRole +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", fullName='" + fullName + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", active=" + active +
-                ", birthDate=" + birthDate +
-                ", image='" + image + '\'' +
-                ", authProvider='" + authProvider + '\'' +
-                ", socialId='" + socialId + '\'' +
-                ", createAt=" + createAt +
-                ", address=" + (address != null ? address.getAddress() : "No address") +  // Lấy thông tin từ Address thay vì gọi toàn bộ toString()
-                '}';
-    }
-
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
-    }
-
+    // Constructors
     public User() {}
 
     public User(String fullName, String password, String username, String email) {
@@ -54,23 +19,15 @@ public class User {
         this.password = password;
         this.username = username;
         this.email = email;
-        this.phoneNumber = phoneNumber;
     }
 
+    // Getters và Setters
     public int getIdUser() {
         return idUser;
     }
 
-    public void setIdUser(int user) {
-        this.idUser = user;
-    }
-
-    public int getIdRole() {
-        return idRole;
-    }
-
-    public void setIdRole(int idRole) {
-        this.idRole = idRole;
+    public void setIdUser(int idUser) {
+        this.idUser = idUser;
     }
 
     public String getUsername() {
@@ -79,14 +36,6 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getFullName() {
@@ -113,12 +62,12 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public Boolean getActive() {
-        return active;
+    public String getPassword() {
+        return password;
     }
 
-    public void setActive(Boolean active) {
-        this.active = active;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getBirthDate() {
@@ -129,37 +78,19 @@ public class User {
         this.birthDate = birthDate;
     }
 
-    public String getImage() {
-        return image;
+    public Address getAddress() {
+        return address;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
-    public String getAuthProvider() {
-        return authProvider;
+    public String getRole() {
+        return role != null ? role.toLowerCase() : null;
     }
 
-    public void setAuthProvider(String authProvider) {
-        this.authProvider = authProvider;
+    public void setRole(String role) {
+        this.role = role != null ? role.toLowerCase() : null;
     }
-
-    public String getSocialId() {
-        return socialId;
-    }
-
-    public void setSocialId(String socialId) {
-        this.socialId = socialId;
-    }
-
-    public Date getCreateAt() {
-        return createAt;
-    }
-
-    public void setCreateAt(Date createAt) {
-        this.createAt = createAt;
-    }
-
-
 }
