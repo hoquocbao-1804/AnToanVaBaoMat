@@ -108,5 +108,8 @@ public class AccountService {
         User user = accountService.getUserByUsername("hatest123");
         System.out.println(user.getIdUser());
     }
+
+    public void saveGoogleUser(User user) {
+    }
 }
 
