@@ -6,9 +6,8 @@ import vn.edu.hcmuaf.st.web.dao.db.JDBIConnect;
 import vn.edu.hcmuaf.st.web.entity.Address;
 import vn.edu.hcmuaf.st.web.entity.Order;
 import vn.edu.hcmuaf.st.web.entity.User;
-
+import java.sql.PreparedStatement;
 import java.util.List;
-
 public class OrderDao {
 
     private final Jdbi jdbi;
@@ -143,6 +142,21 @@ public class OrderDao {
                     .bind("idOrder", orderId)
                     .execute();
             return null;
+        });
+    }
+
+
+    public List<Order> getOrdersByUserId(int userId) {
+        String sql = """
+        SELECT idOrder, idUser, idAddress, idCoupon, totalPrice, status, createAt
+        FROM orders WHERE idUser = :userId ORDER BY createAt DESC
+    """;
+
+        return jdbi.withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .bind("userId", userId)
+                    .mapTo(Order.class)
+                    .list();
         });
     }
 
