@@ -131,19 +131,29 @@ public class OrderDao {
         );
     }
 
-    public void deleteOrder(int orderId) {
-        jdbi.withHandle(handle -> {
-            // Xóa các bản ghi liên quan trong bảng order_details trước
-            handle.createUpdate("DELETE FROM order_details WHERE idOrder = :idOrder")
-                    .bind("idOrder", orderId)
-                    .execute();
-            // Xóa đơn hàng
-            handle.createUpdate("DELETE FROM orders WHERE idOrder = :idOrder")
-                    .bind("idOrder", orderId)
-                    .execute();
-            return null;
-        });
+    public boolean deleteOrder(int orderId) {
+        try {
+            return jdbi.withHandle(handle -> {
+                // Xóa các bản ghi liên quan trong bảng order_details trước
+                int detailRows = handle.createUpdate("DELETE FROM order_details WHERE idOrder = :idOrder")
+                        .bind("idOrder", orderId)
+                        .execute();
+
+                // Xóa đơn hàng chính
+                int orderRows = handle.createUpdate("DELETE FROM orders WHERE idOrder = :idOrder")
+                        .bind("idOrder", orderId)
+                        .execute();
+
+                System.out.println("Xoá chi tiết đơn hàng: " + detailRows + ", Xoá đơn hàng: " + orderRows);
+
+                return orderRows > 0; // chỉ cần đơn hàng chính bị xoá là coi như thành công
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
+
 
 
     public List<Order> getOrdersByUserId(int userId) {
