@@ -81,14 +81,10 @@
                                         <th colspan="2" class="text-right">Tiền vận chyển:</th>
                                         <th class="text-center">50.000 đ</th>
                                     </tr>
-
-                                    </tr>
-                                    <tr>Add commentMore actions
+                                    <tr>
                                         <th colspan="2" class="text-right">Tổng thanh toán:</th>
-                                        <th class="text-center"><fmt:formatNumber value="${order.totalPrice + 50000}" type="currency" currencySymbol="" groupingUsed="true"/> đ</th>
+                                        <th class="text-center">300.000 đ</th>
                                     </tr>
-                                    </tfoot>
-                                </table>
                                     </tfoot>
                                 </table>
                             </div>

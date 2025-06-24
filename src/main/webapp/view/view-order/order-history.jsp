@@ -13,28 +13,28 @@
         <p><em>Bạn chưa có đơn hàng nào.</em></p>
     </c:if>
 
-    <%--    <c:if test="${not empty orderList}">--%>
-    <%--        <table border="1" cellpadding="8">--%>
-    <%--            <thead>--%>
-    <%--            <tr>--%>
-    <%--                <th>Mã hóa đơn</th>--%>
-    <%--                <th>Ngày tạo</th>--%>
-    <%--                <th>Sản phẩm</th>--%>
-    <%--                <th>Thành tiền</th>--%>
-    <%--            </tr>--%>
-    <%--            </thead>--%>
-    <%--            <tbody>--%>
-    <%--            <c:forEach var="o" items="${orderList}">--%>
-    <%--                <tr>--%>
-    <%--                    <td>#${o.idOrder}</td>--%>
-    <%--                    <td>${o.createAt}</td>--%>
-    <%--                    <td>${o.productName}</td>--%>
-    <%--                    <td>${o.totalPrice}</td>--%>
-    <%--                </tr>--%>
-    <%--            </c:forEach>--%>
-    <%--            </tbody>--%>
-    <%--        </table>--%>
-    <%--    </c:if>--%>
+<%--    <c:if test="${not empty orderList}">--%>
+<%--        <table border="1" cellpadding="8">--%>
+<%--            <thead>--%>
+<%--            <tr>--%>
+<%--                <th>Mã hóa đơn</th>--%>
+<%--                <th>Ngày tạo</th>--%>
+<%--                <th>Sản phẩm</th>--%>
+<%--                <th>Thành tiền</th>--%>
+<%--            </tr>--%>
+<%--            </thead>--%>
+<%--            <tbody>--%>
+<%--            <c:forEach var="o" items="${orderList}">--%>
+<%--                <tr>--%>
+<%--                    <td>#${o.idOrder}</td>--%>
+<%--                    <td>${o.createAt}</td>--%>
+<%--                    <td>${o.productName}</td>--%>
+<%--                    <td>${o.totalPrice}</td>--%>
+<%--                </tr>--%>
+<%--            </c:forEach>--%>
+<%--            </tbody>--%>
+<%--        </table>--%>
+<%--    </c:if>--%>
     <c:if test="${not empty orderList}">
         <div class="order-list">
             <c:forEach var="o" items="${orderList}">

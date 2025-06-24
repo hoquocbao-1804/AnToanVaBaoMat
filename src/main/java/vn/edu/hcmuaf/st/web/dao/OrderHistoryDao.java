@@ -15,9 +15,9 @@ public class OrderHistoryDao {
 
     public void insertHistory(OrderHistory h) {
         String sql = """
-            INSERT INTO order_history(order_id, user_id, status, changed_at, note)
-            VALUES (:orderId, :userId, :status, :changedAt, :note)
-        """;
+                    INSERT INTO order_history(order_id, user_id, status, changed_at, note)
+                    VALUES (:orderId, :userId, :status, :changedAt, :note)
+                """;
         jdbi.useHandle(handle ->
                 handle.createUpdate(sql)
                         .bind("orderId", h.getOrderId())
@@ -29,18 +29,4 @@ public class OrderHistoryDao {
         );
     }
 
-    public List<OrderHistory> getHistoryByUserId(int userId) {
-        String sql = """
-            SELECT history_id, order_id, user_id, status, changed_at, note
-              FROM order_history
-             WHERE user_id = :userId
-          ORDER BY changed_at DESC
-        """;
-        return jdbi.withHandle(handle ->
-                handle.createQuery(sql)
-                        .bind("userId", userId)
-                        .mapToBean(OrderHistory.class)
-                        .list()
-        );
-    }
 }

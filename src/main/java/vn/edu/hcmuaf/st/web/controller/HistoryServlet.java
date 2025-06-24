@@ -13,9 +13,6 @@ import vn.edu.hcmuaf.st.web.entity.Order;
 import vn.edu.hcmuaf.st.web.entity.OrderDetail;
 import vn.edu.hcmuaf.st.web.entity.User;
 
-
-
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -37,19 +34,7 @@ public class HistoryServlet extends HttpServlet {
             return;
         }
 
-        // 1. Lấy danh sách đơn hàng
-        List<Order> orders = orderDao.getOrdersByUserId(user.getIdUser());
-        // 2. Cho từng đơn order, lấy chi tiết
-        Map<Integer, List<OrderDetail>> detailsMap = new HashMap<>();
-        for (Order o : orders) {
-            detailsMap.put(o.getIdOrder(), detailDao.getDetailsByOrderId(o.getIdOrder()));
-        }
 
-        // 3. Đặt vào request
-        req.setAttribute("orders", orders);
-        req.setAttribute("detailsMap", detailsMap);
-
-        // 4. Forward xuống JSP
         req.getRequestDispatcher("/view/view-order/order-history.jsp").forward(req, resp);
     }
 }
