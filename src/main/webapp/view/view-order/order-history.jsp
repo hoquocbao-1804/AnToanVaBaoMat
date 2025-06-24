@@ -13,6 +13,11 @@
         <p><em>Bạn chưa có đơn hàng nào.</em></p>
     </c:if>
 
+
+
+
+
+<%--    Hiện đơn hàng sau khi đã order xong, khi mua sắm xong đơn hàng có gì thì lịch sử đơn hàng hiện cái đó--%>
 <%--    <c:if test="${not empty orderList}">--%>
 <%--        <table border="1" cellpadding="8">--%>
 <%--            <thead>--%>
@@ -35,18 +40,18 @@
 <%--            </tbody>--%>
 <%--        </table>--%>
 <%--    </c:if>--%>
-    <c:if test="${not empty orderList}">
-        <div class="order-list">
-            <c:forEach var="o" items="${orderList}">
-                <div class="order-card" style="border:1px solid #ccc; padding:16px; margin-bottom:12px; border-radius:8px;">
-                    <p><strong>Mã hóa đơn:</strong> #${o.idOrder}</p>
-                    <p><strong>Ngày tạo:</strong> ${o.createAt}</p>
-                    <p><strong>Sản phẩm:</strong> ${o.productName}</p>
-                    <p><strong>Thành tiền:</strong> ${o.totalPrice}</p>
-                </div>
-            </c:forEach>
-        </div>
-    </c:if>
+<%--    <c:if test="${not empty orderList}">--%>
+<%--        <div class="order-list">--%>
+<%--            <c:forEach var="o" items="${orderList}">--%>
+<%--                <div class="order-card" style="border:1px solid #ccc; padding:16px; margin-bottom:12px; border-radius:8px;">--%>
+<%--                    <p><strong>Mã hóa đơn:</strong> #${o.idOrder}</p>--%>
+<%--                    <p><strong>Ngày tạo:</strong> ${o.createAt}</p>--%>
+<%--                    <p><strong>Sản phẩm:</strong> ${o.productName}</p>--%>
+<%--                    <p><strong>Thành tiền:</strong> ${o.totalPrice}</p>--%>
+<%--                </div>--%>
+<%--            </c:forEach>--%>
+<%--        </div>--%>
+<%--    </c:if>--%>
 </div>
 
 <jsp:include page="/view/view-index/footer.jsp"/>
