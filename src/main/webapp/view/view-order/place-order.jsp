@@ -100,27 +100,27 @@
                         <div class="card-body">
                             <h4 class="card-title mb-4">Thông tin liên lạc</h4>
 
-                                <div class="row">
-                                    <div class="form-group col-sm-12">
-                                        <label> Họ và Tên </label>
-                                        <input type="text" name="fullName" placeholder="Nhập thông tin"
-                                               class="form-control"
-                                               value="${not empty fullName ? fullName : null}" />
-                                    </div>
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <label> Họ và Tên </label>
+                                    <input type="text" name="fullName" placeholder="Nhập thông tin"
+                                           class="form-control"
+                                           value="${not empty fullName ? fullName : null}" />
+                                </div>
 
-                                    <div class="form-group col-sm-6">
-                                        <label>Số điện thoại</label>
-                                        <input type="text" name="phone" placeholder="+98"
-                                               class="form-control"
-                                               value="${not empty phone ? phone : null}" />
-                                    </div>
-                                    <div class="form-group col-sm-6">
-                                        <label>Email</label>
-                                        <input type="email" name="email" placeholder="example@gmail.com"
-                                               class="form-control"
-                                               value="${not empty email ? email : null}" />
-                                    </div>
-                                </div> <!-- row.// -->
+                                <div class="form-group col-sm-6">
+                                    <label>Số điện thoại</label>
+                                    <input type="text" name="phone" placeholder="+98"
+                                           class="form-control"
+                                           value="${not empty phone ? phone : null}" />
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label>Email</label>
+                                    <input type="email" name="email" placeholder="example@gmail.com"
+                                           class="form-control"
+                                           value="${not empty email ? email : null}" />
+                                </div>
+                            </div> <!-- row.// -->
 
                         </div> <!-- card-body.// -->
                     </article> <!-- card.// -->
@@ -132,24 +132,24 @@
 
 
 
-                                <div class="row">
-                                    <div class="form-group col-sm-12">
-                                        <label> Địa chỉ* </label>
-                                        <input type="text" name="address" placeholder="Nhập địa chỉ" class="form-control">
-                                    </div>
-                                    <div class="form-group col-sm-4">
-                                        <label>Phường/Xã*</label>
-                                        <select name="ward" id="ward" class="form-control" required></select>
-                                    </div>
-                                    <div class="form-group col-sm-4">
-                                        <label>Quận/Huyện*</label>
-                                        <select name="district" id="district" class="form-control" onchange="onDistrictChange()" required></select>
-                                    </div>
-                                    <div class="form-group col-sm-4">
-                                        <label>Tỉnh/Thành phố*</label>
-                                        <select name="province" id="province" class="form-control" onchange="onProvinceChange()" required></select>
-                                    </div>
-                                </div> <!-- row.// -->
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <label> Địa chỉ* </label>
+                                    <input type="text" name="address" placeholder="Nhập địa chỉ" class="form-control">
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label>Phường/Xã*</label>
+                                    <select name="ward" id="ward" class="form-control" required></select>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label>Quận/Huyện*</label>
+                                    <select name="district" id="district" class="form-control" onchange="onDistrictChange()" required></select>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label>Tỉnh/Thành phố*</label>
+                                    <select name="province" id="province" class="form-control" onchange="onProvinceChange()" required></select>
+                                </div>
+                            </div> <!-- row.// -->
 
                         </div> <!-- card-body.// -->
                     </article> <!-- card.// -->

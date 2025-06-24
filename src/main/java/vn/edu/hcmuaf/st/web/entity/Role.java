@@ -8,6 +8,13 @@ public class Role {
         ROLE_ADMIN, ROLE_USER
     }
 
+    public Role() {}
+
+    public Role(int idRole, RoleName nameRole) {
+        this.idRole = idRole;
+        this.nameRole = nameRole;
+    }
+
     public int getIdRole() {
         return idRole;
     }
@@ -26,7 +33,7 @@ public class Role {
 
     @Override
     public String toString() {
-        return "RoleEntiry{" +
+        return "Role{" +
                 "idRole=" + idRole +
                 ", nameRole=" + nameRole +
                 '}';

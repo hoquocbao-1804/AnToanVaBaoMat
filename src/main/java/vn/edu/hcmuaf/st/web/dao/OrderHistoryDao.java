@@ -2,11 +2,8 @@ package vn.edu.hcmuaf.st.web.dao;
 
 import org.jdbi.v3.core.Jdbi;
 import vn.edu.hcmuaf.st.web.dao.db.JDBIConnect;
-import vn.edu.hcmuaf.st.web.entity.Order;
 import vn.edu.hcmuaf.st.web.entity.OrderHistory;
-import vn.edu.hcmuaf.st.web.mapper.OrderMapper;
 
-import java.sql.PreparedStatement;
 import java.util.List;
 
 public class OrderHistoryDao {
@@ -15,25 +12,6 @@ public class OrderHistoryDao {
     public OrderHistoryDao() {
         this.jdbi = JDBIConnect.get();
     }
-
-    public List<Order> getOrdersByUserId(int userId) {
-        String sql = """
-                SELECT idOrder, idUser, idAddress, idCoupon, totalPrice, status, createAt FROM orders WHERE idUser = :userId ORDER BY createAt DESC
-                """;
-        return jdbi.withHandle(handle -> {
-            System.out.println(">> RUNNING SQL WITH USER ID = " + userId);
-
-
-            handle.createQuery(sql);
-            List<Order> list = handle.createQuery("SELECT idOrder, idUser, idAddress, idCoupon, totalPrice, status, createAt FROM orders WHERE idUser = :userId ORDER BY createAt DESC")
-                    .bind("userId", userId)
-                    .map(new OrderMapper())
-                    .list();
-            System.out.println(">> RETURNED ORDERS: " + list.size());
-            return list;
-        });
-    }
-
 
     public void insertHistory(OrderHistory h) {
         String sql = """
@@ -51,18 +29,4 @@ public class OrderHistoryDao {
         );
     }
 
-//    public List<OrderHistory> getHistoryByUserId(int userId) {
-//        String sql = """
-//            SELECT history_id, order_id, user_id, status, changed_at, note
-//              FROM order_history
-//             WHERE user_id = :userId
-//          ORDER BY changed_at DESC
-//        """;
-//        return jdbi.withHandle(handle ->
-//                handle.createQuery(sql)
-//                        .bind("userId", userId)
-//                        .mapToBean(OrderHistory.class)
-//                        .list()
-//        );
-//    }
 }

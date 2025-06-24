@@ -129,78 +129,84 @@
                 Tổng sản phẩm bán được (6 tháng) <span>1000 sản phẩm</span>
             </div>
         </div>
-    </section>
+        <!-- Table -->
+        <section class="tables">
+            <!-- Order Table -->
+            <div class="container-table">
+                <h2>Tình trạng đơn hàng</h2>
+                <table class="table" id="orderTable">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên khách hàng</th>
+                        <th>Tổng tiền</th>
+                        <th>Ngày bắt đầu</th>
+                        <th>Trạng thái</th>
+                        <th>Tính năng</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <c:if test="${empty orders}">
+                        <tr>
+                            <td colspan="6">Không có dữ liệu để hiển thị</td>
+                        </tr>
+                    </c:if>
+                    <c:forEach var="order" items="${orders}">
+                        <tr>
+                            <td>${order.idOrder}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${order.user != null && order.user.fullName != null}">
+                                        ${order.user.fullName}
+                                    </c:when>
+                                    <c:otherwise>
+                                        Không xác định
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
+                                <fmt:formatNumber value="${order.totalPrice}" type="currency" currencySymbol="đ" groupingUsed="true" maxFractionDigits="0"/>
+                            </td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${order.createdAt != null}">
+                                        <fmt:parseDate value="${order.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate"/>
+                                        <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
+                                    </c:when>
+                                    <c:otherwise>
+                                        Không xác định
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
+                        <span class="status-label
+                            ${order.status == 'Chờ xử lý' || order.status == 'Chờ xác nhận' ? 'pending' :
+                              order.status == 'Đang vận chuyển' ? 'in-transit' :
+                              order.status == 'Đã hoàn thành' ? 'completed' :
+                              order.status == 'Đã hủy' ? 'cancelled' : ''}">
+                                ${order.status}
+                        </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-trash" onclick="deleteOrder(${order.idOrder})"><i class="fas fa-trash-alt"></i></button>
+                                <button class="btn btn-edit" onclick="showStatusDropdown(${order.idOrder}, '${order.status}')"><i class="fas fa-edit"></i></button>
+                                <div id="statusDropdown-${order.idOrder}" class="status-dropdown" style="display: none;">
+                                    <select id="statusSelect-${order.idOrder}">
+                                        <option value="Chờ xác nhận" ${order.status == 'Chờ xác nhận' ? 'selected' : ''}>Chờ xác nhận</option>
+                                        <option value="Đang vận chuyển" ${order.status == 'Đang vận chuyển' ? 'selected' : ''}>Đang vận chuyển</option>
+                                        <option value="Đã hoàn thành" ${order.status == 'Đã hoàn thành' ? 'selected' : ''}>Đã hoàn thành</option>
+                                        <option value="Đã hủy" ${order.status == 'Đã hủy' ? 'selected' : ''}>Đã hủy</option>
+                                    </select>
+                                    <button onclick="updateStatus(${order.idOrder})">Lưu</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-    <!-- Table -->
-    <section class="tables">
-        <!-- Order Table -->
-        <div class="container-table">
-            <!-- table 1 -->
-            <h2>Tình trạng đơn hàng</h2>
-            <table class="table" id="orderTable">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên khách hàng</th>
-                    <th>Tổng tiền</th>
-                    <th>Hình thức thanh toán</th>
-                    <th>Ngày bắt đầu</th>
-                    <th>Trạng thái</th>
-                    <th>Tính năng</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>AL3947</td>
-                    <td>Phạm Thị Ngọc</td>
-                    <td>19.770.000 đ</td>
-                    <td>Thẻ tín dụng</td>
-                    <td>2024-11-01</td>
-                    <td><span class="status-label pending">Chờ xử lý</span></td>
-                    <td>
-                        <button class="btn btn-trash"><i class="fas fa-trash-alt"></i></button>
-                        <button class="btn btn-edit"><i class="fas fa-edit"></i></button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>ER3835</td>
-                    <td>Nguyễn Thị Mỹ Yến</td>
-                    <td>16.770.000 đ</td>
-                    <td>Thanh toán khi nhận hàng</td>
-                    <td>2024-11-02</td>
-                    <td><span class="status-label in-transit">Đang vận chuyển</span></td>
-                    <td>
-                        <button class="btn btn-trash"><i class="fas fa-trash-alt"></i></button>
-                        <button class="btn btn-edit"><i class="fas fa-edit"></i></button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>MD0837</td>
-                    <td>Triệu Thanh Phú</td>
-                    <td>9.400.000 đ</td>
-                    <td>Ví điện tử</td>
-                    <td>2024-11-03</td>
-                    <td><span class="status-label completed">Đã hoàn thành</span></td>
-                    <td>
-                        <button class="btn btn-trash"><i class="fas fa-trash-alt"></i></button>
-                        <button class="btn btn-edit"><i class="fas fa-edit"></i></button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>MT9835</td>
-                    <td>Đặng Hoàng Phúc</td>
-                    <td>40.650.000 đ</td>
-                    <td>Chuyển khoản ngân hàng</td>
-                    <td>2024-11-04</td>
-                    <td><span class="status-label cancelled">Đã hủy</span></td>
-                    <td>
-                        <button class="btn btn-trash"><i class="fas fa-trash-alt"></i></button>
-                        <button class="btn btn-edit"><i class="fas fa-edit"></i></button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
 
         <div class="container-table">
             <!-- table2 2 -->
