@@ -27,10 +27,10 @@ public class AccountRepository {
             return q.mapTo(Integer.class).one() > 0;
         });
     }
-
     public boolean addUser(String username, String password, String fullname, String email, String phoneNumber) {
-        String query = "INSERT INTO users (username, password, fullName, email, phoneNumber, active, birthDate, role) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO users (username, password, fullName, email, phoneNumber, active, birthDate, role, idRole) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
         return jdbi.withHandle(handle -> {
             int rowsInserted = handle.createUpdate(query)
                     .bind(0, username)
@@ -40,11 +40,13 @@ public class AccountRepository {
                     .bind(4, phoneNumber)
                     .bind(5, true)
                     .bindNull(6, java.sql.Types.DATE)
-                    .bind(7, "USER") // Gán role = USER
+                    .bind(7, "USER")       // role = USER
+                    .bind(8, 2)            // idRole = 2 (ví dụ)
                     .execute();
             return rowsInserted > 0;
         });
     }
+
 
     public boolean validateUser(String username, String password) {
         String query = "SELECT password FROM users WHERE username = ?";
