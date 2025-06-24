@@ -282,7 +282,7 @@
                                 <dt>Tổng thanh toán</dt>
                                 <dd class="text-right text-dark b" id="final-total">
                                     <strong>
-                                        <fmt:formatNumber value="${cart.finalTotal}" pattern="#,##0 đ"/>
+                                        <fmt:formatNumber value="${cart.finalTotal+50000}" pattern="#,##0 đ"/>
                                     </strong>
                                 </dd>
                             </dl>
