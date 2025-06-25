@@ -88,7 +88,6 @@ public class Order {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
     @Override
     public String toString() {
         return "Order{" +
