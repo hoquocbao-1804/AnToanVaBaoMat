@@ -9,44 +9,30 @@
     <h3>Lịch sử mua hàng</h3>
     <p>Số đơn hàng: <strong>${fn:length(orderList)}</strong></p>
 
-    <c:if test="${empty orderList}">
-        <p><em>Bạn chưa có đơn hàng nào.</em></p>
+    <c:if test="${not empty orderList}">
+    <table>
+        <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Total Price</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach var="order" items="${orderList}">
+            <tr>
+                <td>${order.idOrder}</td>
+                <td>${order.totalPrice}</td>
+                <td>${order.status}</td>
+            </tr>
+        </c:forEach>
+        </tbody>
+    </table>
     </c:if>
 
-<%--    <c:if test="${not empty orderList}">--%>
-<%--        <table border="1" cellpadding="8">--%>
-<%--            <thead>--%>
-<%--            <tr>--%>
-<%--                <th>Mã hóa đơn</th>--%>
-<%--                <th>Ngày tạo</th>--%>
-<%--                <th>Sản phẩm</th>--%>
-<%--                <th>Thành tiền</th>--%>
-<%--            </tr>--%>
-<%--            </thead>--%>
-<%--            <tbody>--%>
-<%--            <c:forEach var="o" items="${orderList}">--%>
-<%--                <tr>--%>
-<%--                    <td>#${o.idOrder}</td>--%>
-<%--                    <td>${o.createAt}</td>--%>
-<%--                    <td>${o.productName}</td>--%>
-<%--                    <td>${o.totalPrice}</td>--%>
-<%--                </tr>--%>
-<%--            </c:forEach>--%>
-<%--            </tbody>--%>
-<%--        </table>--%>
-<%--    </c:if>--%>
-    <c:if test="${not empty orderList}">
-        <div class="order-list">
-            <c:forEach var="o" items="${orderList}">
-                <div class="order-card" style="border:1px solid #ccc; padding:16px; margin-bottom:12px; border-radius:8px;">
-                    <p><strong>Mã hóa đơn:</strong> #${o.idOrder}</p>
-                    <p><strong>Ngày tạo:</strong> ${o.createAt}</p>
-                    <p><strong>Sản phẩm:</strong> ${o.productName}</p>
-                    <p><strong>Thành tiền:</strong> ${o.totalPrice}</p>
-                </div>
-            </c:forEach>
-        </div>
+    <c:if test="${empty orderList}">
+    <p>No orders found.</p>
     </c:if>
-</div>
+
 
 <jsp:include page="/view/view-index/footer.jsp"/>

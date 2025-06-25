@@ -22,11 +22,11 @@ import java.util.Map;
 public class HistoryServlet extends HttpServlet {
 
     private final OrderDao orderDao = new OrderDao();
-    private final OrderDetailDao detailDao = new OrderDetailDao();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+
         HttpSession session = req.getSession(false);
         User user = (session != null) ? (User) session.getAttribute("user") : null;
         if (user == null) {
@@ -34,7 +34,12 @@ public class HistoryServlet extends HttpServlet {
             return;
         }
 
+        // Lấy danh sách đơn hàng của người dùng từ database
+        List<Order> orderList = orderDao.getOrdersByUserId(user.getIdUser()); // Sửa đây
+        // Đặt danh sách đơn hàng vào request
+        req.setAttribute("orderList", orderList);
 
+        // Chuyển tiếp đến trang JSP để hiển thị dữ liệu
         req.getRequestDispatcher("/view/view-order/order-history.jsp").forward(req, resp);
     }
 }

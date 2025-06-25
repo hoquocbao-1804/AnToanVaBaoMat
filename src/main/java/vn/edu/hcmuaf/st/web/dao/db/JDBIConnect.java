@@ -39,6 +39,7 @@ public class JDBIConnect {
 
         jdbi = Jdbi.create(src);
     }
+    
 
 //không cần thiết
 //    public void contextDestroyed(ServletContextEvent sce) {
