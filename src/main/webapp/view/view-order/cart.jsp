@@ -44,7 +44,7 @@
                                         <figcaption class="info">
                                             <a href="#" class="title text-dark">${item.productTitle}</a>
                                             <p>${item.idVariant}</p>
-<%--                                            <p class="text-muted small">Matrix: 25 Mpx <br> Brand: Canon</p>--%>
+                                                <%--                                            <p class="text-muted small">Matrix: 25 Mpx <br> Brand: Canon</p>--%>
                                         </figcaption>
                                     </figure>
                                 </td>
