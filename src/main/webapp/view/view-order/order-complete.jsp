@@ -79,7 +79,7 @@
                                     </tr>
                                     <tr>
                                         <th colspan="2" class="text-right">Tiền vận chyển:</th>
-                                        <th class="text-center">50.000 đ</th>
+                                        <th class="text-center">0 đ</th>
                                     </tr>
                                     <tr>
                                         <th colspan="2" class="text-right">Tổng thanh toán:</th>
