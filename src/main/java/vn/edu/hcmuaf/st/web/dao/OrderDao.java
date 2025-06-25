@@ -6,8 +6,9 @@ import vn.edu.hcmuaf.st.web.dao.db.JDBIConnect;
 import vn.edu.hcmuaf.st.web.entity.Address;
 import vn.edu.hcmuaf.st.web.entity.Order;
 import vn.edu.hcmuaf.st.web.entity.User;
-import java.sql.PreparedStatement;
+
 import java.util.List;
+
 public class OrderDao {
 
     private final Jdbi jdbi;
@@ -34,27 +35,25 @@ public class OrderDao {
                     .bind("totalPrice", order.getTotalPrice())
                     .bind("status", order.getStatus());
 
-            int orderId = update.executeAndReturnGeneratedKeys("idOrder")
+            return update.executeAndReturnGeneratedKeys("idOrder")
                     .mapTo(Integer.class)
                     .findOne()
                     .orElseThrow(() -> new RuntimeException("Failed to insert order"));
-
-            return orderId;
         });
     }
 
     public Order getOrderById(int idOrder) {
         return jdbi.withHandle(handle ->
                 handle.createQuery("""
-                                    SELECT 
-                                        o.idOrder, o.totalPrice, o.status, o.createAt,
-                                        u.idUser, u.fullName, u.email,
-                                        a.idAddress, a.address, a.ward, a.district, a.province
-                                    FROM orders o
-                                    LEFT JOIN users u ON o.idUser = u.idUser
-                                    LEFT JOIN address a ON o.idAddress = a.idAddress
-                                    WHERE o.idOrder = :idOrder
-                                """)
+                        SELECT 
+                            o.idOrder, o.totalPrice, o.status, o.createAt,
+                            u.idUser, u.fullName, u.email,
+                            a.idAddress, a.address, a.ward, a.district, a.province
+                        FROM orders o
+                        LEFT JOIN users u ON o.idUser = u.idUser
+                        LEFT JOIN address a ON o.idAddress = a.idAddress
+                        WHERE o.idOrder = :idOrder
+                        """)
                         .bind("idOrder", idOrder)
                         .map((rs, ctx) -> {
                             Order order = new Order();
@@ -87,14 +86,14 @@ public class OrderDao {
     public List<Order> getAllOrders() {
         return jdbi.withHandle(handle ->
                 handle.createQuery("""
-                                    SELECT 
-                                        o.idOrder, o.totalPrice, o.status, o.createAt,
-                                        u.idUser, u.fullName, u.email,
-                                        a.idAddress, a.address, a.ward, a.district, a.province
-                                    FROM orders o
-                                    LEFT JOIN users u ON o.idUser = u.idUser
-                                    LEFT JOIN address a ON o.idAddress = a.idAddress
-                                """)
+                        SELECT 
+                            o.idOrder, o.totalPrice, o.status, o.createAt,
+                            u.idUser, u.fullName, u.email,
+                            a.idAddress, a.address, a.ward, a.district, a.province
+                        FROM orders o
+                        LEFT JOIN users u ON o.idUser = u.idUser
+                        LEFT JOIN address a ON o.idAddress = a.idAddress
+                        """)
                         .map((rs, ctx) -> {
                             Order order = new Order();
                             order.setIdOrder(rs.getInt("idOrder"));
@@ -134,19 +133,16 @@ public class OrderDao {
     public boolean deleteOrder(int orderId) {
         try {
             return jdbi.withHandle(handle -> {
-                // Xóa các bản ghi liên quan trong bảng order_details trước
                 int detailRows = handle.createUpdate("DELETE FROM order_details WHERE idOrder = :idOrder")
                         .bind("idOrder", orderId)
                         .execute();
 
-                // Xóa đơn hàng chính
                 int orderRows = handle.createUpdate("DELETE FROM orders WHERE idOrder = :idOrder")
                         .bind("idOrder", orderId)
                         .execute();
 
                 System.out.println("Xoá chi tiết đơn hàng: " + detailRows + ", Xoá đơn hàng: " + orderRows);
-
-                return orderRows > 0; // chỉ cần đơn hàng chính bị xoá là coi như thành công
+                return orderRows > 0;
             });
         } catch (Exception e) {
             e.printStackTrace();
@@ -154,21 +150,35 @@ public class OrderDao {
         }
     }
 
-
-
     public List<Order> getOrdersByUserId(int userId) {
         String sql = """
-        SELECT idOrder, idUser, idAddress, idCoupon, totalPrice, status, createAt
-        FROM orders WHERE idUser = :userId ORDER BY createAt DESC
-    """;
+                SELECT 
+                    o.idOrder, o.totalPrice, o.status, o.createAt,
+                    u.idUser, u.fullName, u.email
+                FROM orders o
+                JOIN users u ON o.idUser = u.idUser
+                WHERE o.idUser = :userId
+                ORDER BY o.createAt DESC
+                """;
 
-        return jdbi.withHandle(handle -> {
-            return handle.createQuery(sql)
-                    .bind("userId", userId)
-                    .mapTo(Order.class)
-                    .list();
-        });
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("userId", userId)
+                        .map((rs, ctx) -> {
+                            Order order = new Order();
+                            order.setIdOrder(rs.getInt("idOrder"));
+                            order.setTotalPrice(rs.getDouble("totalPrice"));
+                            order.setStatus(rs.getString("status"));
+                            order.setCreatedAt(rs.getTimestamp("createAt") != null ? rs.getTimestamp("createAt").toLocalDateTime() : null);
+
+                            User user = new User();
+                            user.setIdUser(rs.getInt("idUser"));
+                            user.setFullName(rs.getString("fullName"));
+                            user.setEmail(rs.getString("email"));
+                            order.setUser(user);
+
+                            return order;
+                        }).list()
+        );
     }
-
-
 }

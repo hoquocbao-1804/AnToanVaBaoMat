@@ -123,7 +123,6 @@ public class AccountController extends HttpServlet {
                 session.setAttribute("password", user.getPassword());
                 session.setAttribute("phoneNumber", user.getPhoneNumber());// Chú ý: Không nên lưu mật khẩu vào session!
                 session.setAttribute("birthDate", user.getBirthDate());
-                session.setAttribute("image", user.getImage());
             }
 
             session.setAttribute("user", user);
@@ -289,10 +288,6 @@ public class AccountController extends HttpServlet {
                 user.setEmail(googleAccount.getEmail());
                 user.setFullName(googleAccount.getFullName());
                 user.setPhoneNumber(googleAccount.getPhoneNumber());
-                user.setAuthProvider("google");
-                user.setSocialId(googleAccount.getId());
-                user.setImage(googleAccount.getImage());
-                user.setIdRole(googleAccount.getIdRole());
 
                 // Tạo user trong DB (bạn cần viết hàm createUser nếu chưa có)
                 user = accountService.insertOrUpdateUserAndReturn(googleAccount);
@@ -306,7 +301,7 @@ public class AccountController extends HttpServlet {
             session.setAttribute("password", user.getPassword());
             session.setAttribute("phoneNumber", user.getPhoneNumber());// Chú ý: Không nên lưu mật khẩu vào session!
             session.setAttribute("birthDate", user.getBirthDate());
-            session.setAttribute("image", user.getImage());
+
             response.sendRedirect(request.getContextPath() + "/home");
 
         } catch (Exception e) {
@@ -314,7 +309,6 @@ public class AccountController extends HttpServlet {
         }
     }
 
-    // Đăng Xuất Bằng Tk
     private void handleLogout(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
@@ -414,7 +408,5 @@ public class AccountController extends HttpServlet {
             request.getRequestDispatcher("/view/view-account/signin.jsp").forward(request, response);
         }
     }   
-
-
 
 }
