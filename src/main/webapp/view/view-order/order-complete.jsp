@@ -83,7 +83,10 @@
                                     </tr>
                                     <tr>
                                         <th colspan="2" class="text-right">Tổng thanh toán:</th>
-                                        <th class="text-center">300.000 đ</th>
+                                        <th class="text-center">
+                                            <fmt:formatNumber value="${order.totalPrice}" type="currency" currencySymbol="" groupingUsed="true"/> đ
+
+                                        </th>
                                     </tr>
                                     </tfoot>
                                 </table>
