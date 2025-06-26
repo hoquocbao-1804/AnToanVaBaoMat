@@ -6,6 +6,8 @@ import vn.edu.hcmuaf.st.web.entity.Address;
 
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
+import vn.edu.hcmuaf.st.web.util.HashUtil;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -41,6 +43,9 @@ public class OrderMapper implements RowMapper<Order> {
         order.setAddress(address);
         order.setSignatureStatus(rs.getString("signature_status"));
         order.setDigitalSignature(rs.getString("digital_signature"));
+        String raw = order.getIdOrder() + "|" + order.getTotalPrice() + "|" + order.getCreatedAt();
+        String hash = HashUtil.sha256(raw);
+        order.setHash(hash);
         return order;
     }
 

@@ -14,6 +14,8 @@ public class Order {
     private LocalDateTime updatedAt;
     private String signatureStatus;
     private String digitalSignature;
+    private String hash;
+
 
     public Order() {
 
@@ -27,7 +29,12 @@ public class Order {
         this.status = status;
 
     }
-
+    public String getHash() {
+        return hash;
+    }
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
 
     public int getIdOrder() {
         return idOrder;
