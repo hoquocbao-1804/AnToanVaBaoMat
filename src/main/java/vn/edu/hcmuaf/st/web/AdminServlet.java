@@ -17,69 +17,43 @@ public class AdminServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // Lấy tất cả các đơn hàng
         List<Order> orders = orderDao.getAllOrders();
-        System.out.println("Danh sách đơn hàng: " + orders);
+
+        // Kiểm tra xem có đơn hàng nào được lấy từ cơ sở dữ liệu không
         if (orders == null || orders.isEmpty()) {
             System.out.println("Không có đơn hàng nào được lấy từ cơ sở dữ liệu!");
+            req.setAttribute("message", "Không có đơn hàng nào!");
+        } else {
+            System.out.println("Danh sách đơn hàng: " + orders);
+            req.setAttribute("orders", orders);
         }
-        req.setAttribute("orders", orders);
+
+        // Chuyển tiếp đến trang admin.jsp để hiển thị danh sách đơn hàng
         req.getRequestDispatcher("/view-admin/admin.jsp").forward(req, resp);
     }
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        // Thiết lập mã hóa và loại nội dung
-        req.setCharacterEncoding("UTF-8");
-        resp.setContentType("application/json; charset=UTF-8");
 
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
 
-        if (action == null) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu tham số 'action'");
-            return;
-        }
+        if ("updateStatus".equals(action)) {
+            // Cập nhật trạng thái đơn hàng
+            int orderId = Integer.parseInt(req.getParameter("orderId"));
+            String newStatus = req.getParameter("status");
 
-        try {
-            switch (action) {
-                case "deleteOrder":
-                    handleDeleteOrder(req, resp);
-                    break;
-                default:
-                    resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Hành động không hợp lệ: " + action);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi server: " + e.getMessage());
-        }
-    }
+            // Cập nhật trạng thái đơn hàng trong database
+            orderDao.updateOrderStatus(orderId, newStatus);
 
-    private void handleDeleteOrder(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String orderIdStr = req.getParameter("orderId");
+            // Chuyển hướng về trang quản lý đơn hàng sau khi cập nhật trạng thái
+            resp.sendRedirect(req.getContextPath() + "/admin");  // Điều hướng lại đến trang admin
+        } else if ("deleteOrder".equals(action)) {
+            // Xóa đơn hàng
+            int orderId = Integer.parseInt(req.getParameter("orderId"));
+            orderDao.deleteOrder(orderId);
 
-        System.out.println("[AdminServlet] Nhận yêu cầu xóa đơn hàng với orderId = " + orderIdStr);
-
-        if (orderIdStr == null || orderIdStr.isEmpty()) {
-            System.out.println("[AdminServlet] orderId null hoặc rỗng.");
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu 'orderId'");
-            return;
-        }
-
-        try {
-            int orderId = Integer.parseInt(orderIdStr);
-            boolean deleted = orderDao.deleteOrder(orderId);
-
-            if (deleted) {
-                System.out.println("[AdminServlet] Xóa đơn hàng thành công: ID = " + orderId);
-                resp.setStatus(HttpServletResponse.SC_OK);
-                resp.getWriter().write("{\"message\":\"Xóa thành công!\"}");
-            } else {
-                System.out.println("[AdminServlet] Xóa thất bại hoặc đơn hàng không tồn tại: ID = " + orderId);
-                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Xóa thất bại hoặc đơn hàng không tồn tại");
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("[AdminServlet] orderId không hợp lệ: " + orderIdStr);
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "orderId không hợp lệ");
+            // Chuyển hướng về trang quản lý đơn hàng sau khi xóa
+            resp.sendRedirect(req.getContextPath() + "/admin");  // Điều hướng lại đến trang admin
         }
     }
-
-
 }
