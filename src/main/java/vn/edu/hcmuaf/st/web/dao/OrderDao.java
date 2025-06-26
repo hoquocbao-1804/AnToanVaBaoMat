@@ -91,20 +91,28 @@ public class OrderDao {
         );
     }
 
-    // Xóa đơn hàng
-    public void deleteOrder(int orderId) {
-        jdbi.withHandle(handle -> {
-            // Xóa các bản ghi liên quan trong bảng order_details trước
-            handle.createUpdate("DELETE FROM order_details WHERE idOrder = :idOrder")
+    public boolean deleteOrder(int orderId) {
+        return jdbi.withHandle(handle -> {
+            // Xóa dữ liệu trong payments trước
+            handle.createUpdate("DELETE FROM payments WHERE idOrder = :idOrder")
                     .bind("idOrder", orderId)
                     .execute();
-            // Xóa đơn hàng
-            handle.createUpdate("DELETE FROM orders WHERE idOrder = :idOrder")
+
+            // Xóa dữ liệu trong order_details
+            handle.createUpdate("DELETE FROM orderdetail WHERE idOrder = :idOrder")
                     .bind("idOrder", orderId)
                     .execute();
-            return null;
+
+            // Cuối cùng mới xóa order
+            int deleted = handle.createUpdate("DELETE FROM orders WHERE idOrder = :idOrder")
+                    .bind("idOrder", orderId)
+                    .execute();
+
+            return deleted > 0;
         });
     }
+
+
 
     // Xóa tất cả đơn hàng của người dùng
     public void deleteOrdersByUserId(int userId) {
@@ -161,4 +169,5 @@ public class OrderDao {
                         .list()
         );
     }
+
 }
