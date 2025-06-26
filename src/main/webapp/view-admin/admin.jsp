@@ -188,7 +188,14 @@
                         </span>
                             </td>
                             <td>
-                                <button class="btn btn-trash" onclick="deleteOrder(${order.idOrder})"><i class="fas fa-trash-alt"></i></button>
+                                <form method="post" action="${pageContext.request.contextPath}/admin" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
+                                    <input type="hidden" name="action" value="deleteOrder" />
+                                    <input type="hidden" name="orderId" value="${order.idOrder}" />
+                                    <button type="submit" class="btn btn-trash">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+
                                 <button class="btn btn-edit" onclick="showStatusDropdown(${order.idOrder}, '${order.status}')"><i class="fas fa-edit"></i></button>
                                 <div id="statusDropdown-${order.idOrder}" class="status-dropdown" style="display: none;">
                                     <select id="statusSelect-${order.idOrder}">
@@ -311,6 +318,10 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/admin.js"></script>
+<script>
+    const contextPath = '${pageContext.request.contextPath}';
+</script>
+
 <script>
     $(document).ready(function () {
         $('#orderTable').DataTable({

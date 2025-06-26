@@ -2,6 +2,8 @@
     // Lấy contextPath từ JSP để fetch hoạt động đúng nếu dùng file .js ngoài
     const contextPath = '${pageContext.request.contextPath}';
 
+
+
     $(document).ready(function () {
     // Xử lý highlight cho menu
     $(".menu-link").click(function () {
@@ -70,33 +72,19 @@
     alert('Đã xảy ra lỗi khi cập nhật trạng thái!');
 });
 }
-
-    // Xóa đơn hàng
     function deleteOrder(orderId) {
-    if (confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')) {
-    fetch(`${contextPath}/admin`, {
-    method: 'POST',
-    headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
-},
-    body: `action=deleteOrder&orderId=${orderId}`
-})
-    .then(response => {
-    if (response.ok) {
-    // Xóa dòng đơn hàng khỏi bảng
-    const row = document.getElementById(`statusDropdown-${orderId}`).closest('tr');
-    if (row) row.remove();
-    alert('Đơn hàng đã được xóa thành công!');
-} else {
-    alert('Xóa đơn hàng thất bại!');
-}
-})
-    .catch(error => {
-    console.error('Lỗi khi xóa đơn hàng:', error);
-    alert('Đã xảy ra lỗi khi xóa đơn hàng!');
-});
-}
-}
+        if (!confirm('Xóa đơn hàng này?')) return;
+
+        fetch(`${contextPath}/admin`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=deleteOrder&orderId=${orderId}`
+        }).then(() => location.reload());
+    }
+
+
 
     // Hàm phụ trợ: lấy class theo trạng thái
     function getStatusClass(status) {
