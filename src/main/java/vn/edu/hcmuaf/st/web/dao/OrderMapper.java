@@ -39,7 +39,8 @@ public class OrderMapper implements RowMapper<Order> {
         address.setDistrict(rs.getString("district"));
         address.setProvince(rs.getString("province"));
         order.setAddress(address);
-
+        order.setSignatureStatus(rs.getString("signature_status"));
+        order.setDigitalSignature(rs.getString("digital_signature"));
         return order;
     }
 

@@ -49,11 +49,11 @@ public class OrderDao {
         String sqlOrderById = """
         SELECT o.idOrder, o.idUser, o.idAddress, o.idCoupon, o.totalPrice, o.status, o.createAt, o.updateAt,
                u.fullName, u.email,
-               a.address, a.ward, a.district, a.province 
+               a.address, a.ward, a.district, a.province, o.signature_status,o.digital_signature
         FROM orders o
         LEFT JOIN users u ON o.idUser = u.idUser
         LEFT JOIN address a ON o.idAddress = a.idAddress
-        WHERE o.idOrder = :idOrder
+        WHERE o.idOrder = :idOrder  
     """;
 
         return jdbi.withHandle(handle ->
@@ -71,7 +71,7 @@ public class OrderDao {
                 handle.createQuery("""
                 SELECT o.idOrder, o.totalPrice, o.status, o.createAt, o.updateAt,
                        u.idUser, u.fullName, u.email,
-                       a.idAddress, a.address, a.ward, a.district, a.province
+                       a.idAddress, a.address, a.ward, a.district, a.province,o.signature_status, o.digital_signature
                 FROM orders o
                 LEFT JOIN users u ON o.idUser = u.idUser
                 LEFT JOIN address a ON o.idAddress = a.idAddress
@@ -127,7 +127,7 @@ public class OrderDao {
         String sqlOrdersByStatus = """
         SELECT o.idOrder, o.idUser, o.idAddress, o.idCoupon, o.totalPrice, o.status, o.createAt, o.updateAt,
                u.fullName, u.email,
-               a.address, a.ward, a.district, a.province 
+               a.address, a.ward, a.district, a.province,
         FROM orders o
         LEFT JOIN users u ON o.idUser = u.idUser
         LEFT JOIN address a ON o.idAddress = a.idAddress
@@ -147,7 +147,7 @@ public class OrderDao {
         String sqlOrdersByUserId = """
         SELECT o.idOrder, o.idUser, o.idAddress, o.idCoupon, o.totalPrice, o.status, o.createAt, o.updateAt,
                u.fullName, u.email,
-               a.address, a.ward, a.district, a.province 
+               a.address, a.ward, a.district, a.province,o.signature_status, o.digital_signature
         FROM orders o
         LEFT JOIN users u ON o.idUser = u.idUser
         LEFT JOIN address a ON o.idAddress = a.idAddress
@@ -161,4 +161,18 @@ public class OrderDao {
                         .list()
         );
     }
+
+    // Cập nhật chữ ký điện tử cho đơn hàng
+    public boolean updateSignature(int orderId, String signature) {
+        String sql = "UPDATE orders SET digital_signature = :signature, signature_status = 'Đã ký' WHERE idOrder = :orderId";
+
+        return jdbi.withHandle(handle ->
+                handle.createUpdate(sql)
+                        .bind("signature", signature)
+                        .bind("orderId", orderId)
+                        .execute() > 0
+        );
+    }
+
+
 }
