@@ -69,18 +69,17 @@ public class OrderDao {
     public List<Order> getAllOrders() {
         return jdbi.withHandle(handle ->
                 handle.createQuery("""
-            SELECT o.idOrder, o.totalPrice, o.status, o.createAt,
-                   u.idUser, u.fullName, u.email,
-                   a.idAddress, a.address, a.ward, a.district, a.province
-            FROM orders o
-            LEFT JOIN users u ON o.idUser = u.idUser
-            LEFT JOIN address a ON o.idAddress = a.idAddress
-        """)
+                SELECT o.idOrder, o.totalPrice, o.status, o.createAt, o.updateAt,
+                       u.idUser, u.fullName, u.email,
+                       a.idAddress, a.address, a.ward, a.district, a.province
+                FROM orders o
+                LEFT JOIN users u ON o.idUser = u.idUser
+                LEFT JOIN address a ON o.idAddress = a.idAddress
+            """)
                         .map(new OrderMapper())  // Sử dụng OrderMapper để ánh xạ
                         .list()
         );
     }
-
 
     // Cập nhật trạng thái đơn hàng
     public void updateOrderStatus(int orderId, String status) {
@@ -142,15 +141,17 @@ public class OrderDao {
                         .list()
         );
     }
+
+    // Lấy các đơn hàng của người dùng theo userId
     public List<Order> getOrdersByUserId(int userId) {
         String sqlOrdersByUserId = """
-    SELECT o.idOrder, o.idUser, o.idAddress, o.idCoupon, o.totalPrice, o.status, o.createAt, o.updateAt,
-           u.fullName, u.email,
-           a.address, a.ward, a.district, a.province 
-    FROM orders o
-    LEFT JOIN users u ON o.idUser = u.idUser
-    LEFT JOIN address a ON o.idAddress = a.idAddress
-    WHERE o.idUser = :userId ORDER BY o.createAt DESC
+        SELECT o.idOrder, o.idUser, o.idAddress, o.idCoupon, o.totalPrice, o.status, o.createAt, o.updateAt,
+               u.fullName, u.email,
+               a.address, a.ward, a.district, a.province 
+        FROM orders o
+        LEFT JOIN users u ON o.idUser = u.idUser
+        LEFT JOIN address a ON o.idAddress = a.idAddress
+        WHERE o.idUser = :userId ORDER BY o.createAt DESC
     """;
 
         return jdbi.withHandle(handle ->
@@ -160,6 +161,4 @@ public class OrderDao {
                         .list()
         );
     }
-
-
 }
