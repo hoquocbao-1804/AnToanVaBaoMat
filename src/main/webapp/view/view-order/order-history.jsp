@@ -135,7 +135,7 @@
         <input type="text" id="signatureValue" placeholder="Dán chữ ký ở đây" style="width: 100%;" />
 
         <p style="margin-top: 12px;">
-            <a href="/tool/download-sign-tool.zip" target="_blank">Tải tool tại đây</a>
+            <a href="${pageContext.request.contextPath}/assert/tool.exe" target="_blank">Tải tool tại đây</a>
         </p>
 
         <div style="margin-top: 16px; text-align: right;">
