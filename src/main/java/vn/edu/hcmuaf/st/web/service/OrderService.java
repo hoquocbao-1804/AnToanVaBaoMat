@@ -24,4 +24,8 @@ public class OrderService {
         Order order = orderService.getOrderById(5);
         System.out.println(order);
     }
+
+    public boolean updateSignature(int orderId, String signature) {
+        return orderDao.updateSignature(orderId, signature);
+    }
 }

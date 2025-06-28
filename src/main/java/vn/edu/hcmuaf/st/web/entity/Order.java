@@ -12,6 +12,10 @@ public class Order {
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String signatureStatus;
+    private String digitalSignature;
+    private String hash;
+
 
     public Order() {
 
@@ -23,6 +27,13 @@ public class Order {
         this.address = address;
         this.totalPrice = totalPrice;
         this.status = status;
+
+    }
+    public String getHash() {
+        return hash;
+    }
+    public void setHash(String hash) {
+        this.hash = hash;
     }
 
     public int getIdOrder() {
@@ -100,5 +111,24 @@ public class Order {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
+    }
+
+
+
+
+    public String getSignatureStatus() {
+        return signatureStatus;
+    }
+
+    public void setSignatureStatus(String signatureStatus) {
+        this.signatureStatus = signatureStatus;
+    }
+
+    public String getDigitalSignature() {
+        return digitalSignature;
+    }
+
+    public void setDigitalSignature(String digitalSignature) {
+        this.digitalSignature = digitalSignature;
     }
 }

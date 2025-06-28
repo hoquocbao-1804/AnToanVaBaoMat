@@ -35,7 +35,8 @@ public class HistoryServlet extends HttpServlet {
         }
 
         // Lấy danh sách đơn hàng của người dùng từ database
-        List<Order> orderList = orderDao.getOrdersByUserId(user.getIdUser()); // Sửa đây
+        List<Order> orderList = orderDao.getOrdersByUserId(user.getIdUser());
+        System.out.println("Đơn hàng lấy được: " + orderList.size());// Sửa đây
         // Đặt danh sách đơn hàng vào request
         req.setAttribute("orderList", orderList);
 
