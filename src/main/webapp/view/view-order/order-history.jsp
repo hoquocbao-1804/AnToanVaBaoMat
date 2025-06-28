@@ -118,6 +118,9 @@
                     style="position: absolute; top: 50%; right: 6px; transform: translateY(-50%);
                        border: none; background: none; cursor: pointer;">📋</button>
         </div>
+        <p style="margin-top: 16px;"><b>Chữ ký:</b></p>
+        <input type="text" id="signatureValue" placeholder="Dán chữ ký ở đây" style="width: 100%;" />
+
 
         <p style="margin-top: 12px;">
             <a href="${pageContext.request.contextPath}/assert/tool.exe" target="_blank">Tải tool tại đây</a>
@@ -170,7 +173,8 @@
 
 
     function submitSignature() {
-        const signature = document.getElementById("signatureValue").value;
+        const signature = document.getElementById("signatureValue")?.value || "";
+
         fetch('/sign-order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -178,15 +182,13 @@
                 orderId: currentOrderId,
                 signature: signature
             })
-        }).then(res => {
-            if (res.ok) {
-                alert("Ký thành công!");
-                location.reload();
-            } else {
-                alert("Ký thất bại!");
-            }
-        });
+        })
+
+        window.location.reload(); // <-- Reload lại trang
+
+
     }
+
 </script>
 
 <jsp:include page="/view/view-index/footer.jsp"/>
