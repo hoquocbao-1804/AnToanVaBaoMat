@@ -73,8 +73,6 @@
             <tr>
                 <th>Order ID</th>
                 <th>Tổng tiền</th>
-                <th>Trạng thái</th>
-                <th>Xác nhận chữ ký</th>
                 <th>Chữ ký điện tử</th>
             </tr>
             </thead>
@@ -84,12 +82,10 @@
                 <tr>
                     <td>${order.idOrder}</td>
                     <td><fmt:formatNumber value="${order.totalPrice}" type="currency" currencySymbol="₫" /></td>
-                    <td>${order.status}</td>
-                    <td>${empty order.signatureStatus ? 'Chưa ký' : order.signatureStatus}</td>
                     <td>
                         <c:choose>
                             <c:when test="${empty order.digitalSignature}">
-                                <button onclick="openSignPopup('${order.idOrder}', '${order.hash}', '${order.digitalSignature}')">Ký</button>
+                                <button onclick="openSignPopup('${order.idOrder}', '${order.hash}', '${order.digitalSignature}')">Chữ Ký</button>
                             </c:when>
                             <c:otherwise>
                                 Đã ký
@@ -108,20 +104,12 @@
     <c:if test="${empty orderList}">
         <p class="no-orders">Không tìm thấy đơn hàng nào.</p>
     </c:if>
-    <div id="signPopup" style="
-    display: none;
-    position: fixed;
-    top: 100px;
-    right: 140px;
-    width: 360px;
-    background: #fff;
-    padding: 20px;
-    border: 1px solid #ccc;
-    z-index: 1000;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-">
+    <div id="signPopup" style="display: none; position: fixed; top: 100px; right: 140px; width: 360px; background: #fff; padding: 20px; border: 1px solid #ccc; z-index: 1000; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
         <h4>Ký xác thực đơn hàng</h4>
+
+        <p><b>Order ID:</b> <span id="popupOrderId"></span></p>
+
+        <p><b>Tổng tiền:</b> <span id="popupTotalPrice"></span></p>
 
         <p><b>Mã Hash:</b></p>
         <div style="position: relative; width: 100%;">
@@ -130,9 +118,6 @@
                     style="position: absolute; top: 50%; right: 6px; transform: translateY(-50%);
                        border: none; background: none; cursor: pointer;">📋</button>
         </div>
-
-        <p style="margin-top: 16px;"><b>Chữ ký:</b></p>
-        <input type="text" id="signatureValue" placeholder="Dán chữ ký ở đây" style="width: 100%;" />
 
         <p style="margin-top: 12px;">
             <a href="${pageContext.request.contextPath}/assert/tool.exe" target="_blank">Tải tool tại đây</a>
@@ -145,16 +130,31 @@
     </div>
 
 
+
 </div>
 <script>
     let currentOrderId = null;
 
     function openSignPopup(orderId, hash, existingSignature = '') {
         currentOrderId = orderId;
+        document.getElementById("popupOrderId").innerText = orderId;
         document.getElementById("hashValue").value = hash;
-        document.getElementById("signatureValue").value = existingSignature || "";
+
+        // Fix: tìm dòng theo giá trị td đầu tiên khớp tuyệt đối với orderId
+        const rows = document.querySelectorAll("table tbody tr");
+        for (const row of rows) {
+            const idCell = row.querySelector("td:first-child");
+            if (idCell && idCell.innerText.trim() === orderId.toString()) {
+                const price = row.querySelector("td:nth-child(2)").innerText;
+                document.getElementById("popupTotalPrice").innerText = price;
+                break;
+            }
+        }
+
         document.getElementById("signPopup").style.display = "block";
     }
+
+
 
 
     function closeSignPopup() {
